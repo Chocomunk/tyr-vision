@@ -337,7 +337,8 @@ def send_data(*data):
 
 def send_video(frame):
 	try:
-		data = "" # the data we are going to send
+	        frame_part = 0	
+                data = "" # the data we are going to send
 		counter = 120 # size of each packet
 		sent = 0 # for debugging
 		s.send(chr(0)) # Send a null byte to mark a new frame
@@ -345,10 +346,10 @@ def send_video(frame):
 			for j in xrange(160): #width
 				if counter == 1: # if we need to send
 					sent+=1 # for debugging
-					s.send(data+chr(frame[i,j]))#send the data 
+					s.send(chr(frame_part)+data+chr(frame[i,j]))#send the data 
 					data = ""
 					counter = 120
-						
+		                        frame_part+=1				
 				else:
 					data+=chr(frame[i][j])
 					counter-=1
