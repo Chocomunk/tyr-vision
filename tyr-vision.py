@@ -27,7 +27,6 @@ import sys
 import time
 
 
-<<<<<<< HEAD
 """ Video Streaming """
 
 
@@ -54,9 +53,7 @@ streaming = True
 #	print user
 
 
-=======
 """ DEFAULT SETTINGS """
->>>>>>> master
 """ Serial Output """
 #port = '/dev/ttyS0' # primary DB9 RS-232 port
 #port = '/dev/ttyUSB0' # primary USB-serial port
@@ -121,7 +118,6 @@ except:
     ser = None
     print "Couldn't open serial port!"
 
-<<<<<<< HEAD
 
 """ Video Input Settings """
 cap = cv2.VideoCapture(0)  # stream from webcam
@@ -134,8 +130,6 @@ save_video = False
 
 
 
-=======
->>>>>>> master
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
@@ -299,12 +293,7 @@ def draw_targeting_HUD(frame, target):
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
         #pause = True
     else:  # draw the best match and its bounding box
-<<<<<<< HEAD
-        cv2.drawContours(frame, [target], 0, (255, 255, 255), 3) # Draw target in cyan
-
-=======
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
->>>>>>> master
         draw_goal(frame, target)
 
         center_x, center_y = image_center()
@@ -384,13 +373,9 @@ while(cap.isOpened()):
 
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
-<<<<<<< HEAD
-		
-=======
         draw_base_HUD(frame)
         end = time.time()
         draw_fps(frame, 1.0 / (end - start))
->>>>>>> master
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
