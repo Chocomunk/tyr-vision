@@ -13,7 +13,6 @@ import time
 from threading import Thread
 import cv2
 import numpy as np
-import pyautogui
 
 # LOCAL MODULE IMPORTS
 
@@ -93,8 +92,14 @@ while(videoinput.cap.isOpened()):
 
         if settings.show_video:
             cv2.namedWindow("tyr-vision", cv2.cv.CV_WINDOW_NORMAL)  # allow resizing
-            screen_width, screen_height = pyautogui.size()
-            cv2.resizeWindow("tyr-vision", screen_width, screen_height)
+
+            try:
+                import pyautogui
+                screen_width, screen_height = pyautogui.size()
+                cv2.resizeWindow("tyr-vision", screen_width, screen_height)
+            except:
+                print "Couldn't import pyautogui"
+
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
         try:
