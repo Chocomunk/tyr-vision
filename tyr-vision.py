@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 #
-# tyr-vision
+# tyr-vision.py
+#
 # Team 8 Stronghold vision program
 #
 

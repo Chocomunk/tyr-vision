@@ -18,3 +18,9 @@ Install the following python packages:
 
 On Debian/Ubuntu, run:  
 `sudo apt-get install numpy cv2`
+
+
+### Usage ###
+Download the test video file [here](https://drive.google.com/open?id=0B3CtH7XCgLzOT0trdTlpc1c0UlE).  
+To run the program in a shell: `./tyr-vision.py`  
+To exit the program, press the 'q' key.
