@@ -11,13 +11,16 @@ Install the following system packages
 On Debian/Ubuntu, run:  
 `sudo apt-get install python python-pip python-opencv`  
 
+On Arch Linux:   
+`sudo pacman -S python2 python2-pip python2-numpy`  
+
 Install the following python packages:
 
 * numpy
 * cv2
 
-On Debian/Ubuntu, run:  
-`sudo apt-get install numpy cv2`
+If you're using the system Python, run:  
+`sudo pip install numpy cv2`
 
 
 ### Usage ###
