@@ -27,7 +27,14 @@ while(cap.isOpened()):
             approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
             # Only draw outlines of large rectangles
             if cv2.contourArea(approx) > 1000 and len(approx) == 8:
-                cv2.drawContours(frame, [approx], 0, (0, 0, 255), 5)
+                cv2.drawContours(frame, [approx], 0, (0, 0, 255), 5)  # draw the contour in red
+                x,y,w,h = cv2.boundingRect(approx)  # find a non-rotated bounding rectangle
+                cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)  # draw boudning rectangle in green
+                # find the smallest bounding rectangle with rotation
+                rect = cv2.minAreaRect(approx)
+                box = cv2.cv.BoxPoints(rect)
+                box = np.int0(box)
+                cv2.drawContours(frame, [box], 0, (255,0,0), 2)  # draw the rotated rectangle in blue
 
         cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
