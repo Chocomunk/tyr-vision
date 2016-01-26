@@ -41,8 +41,17 @@ while(cap.isOpened()):
 
         cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
-        if cv2.waitKey(25) & 0xFF == ord('q'):  # exit with the 'q' key
+        k = cv2.waitKey(25)  # wait 25ms for a keystroke
+        if k == ord('q'):  # exit with the 'q' key
+            print "Exiting playback!"
             break
+        elif k == ord(' '):  # pause with the spacebar
+            print "Pausing video"
+            while True:
+                if cv2.waitKey(25) == ord(' '):  # resume with the spacebar
+                    print "Resuming video"
+                    break
+
     else:
         break
 
