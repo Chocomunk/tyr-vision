@@ -17,7 +17,7 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     if ret:
         # Find outlines of white objects
-        white = cv2.inRange(frame, (245, 245, 245), (255, 255, 255))
+        white = cv2.inRange(frame, (230, 230, 230), (255, 255, 255))
         cv2.imshow('white threshold', white)
         contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
