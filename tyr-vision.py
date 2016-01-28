@@ -37,16 +37,14 @@ while(cap.isOpened()):
                 cv2.drawContours(frame, [approx], 0, (0,0,255), 5)  # draw the contour in red
                 x,y,w,h = cv2.boundingRect(approx)  # find a non-rotated bounding rectangle
                 cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)  # draw bounding rectangle in green
-                if 1.2 < w/h < 1.8:  # filter by aspect ratio of the bounding box
-                    cv2.drawContours(frame, [approx], 0, (255, 0, 255), 5)  # draw the contour in purple
-                    similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
-                    if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
-                        best_match_similarity = similarity
-                        best_match = approx
+                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
+                if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
+                    best_match_similarity = similarity
+                    best_match = approx
 
         if best_match is None:
             print "No match"
-            pause = True
+            #pause = True
         else:
             cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 6) # Draw best match for U shape
 
