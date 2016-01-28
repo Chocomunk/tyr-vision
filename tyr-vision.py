@@ -8,6 +8,7 @@
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
+import time
 
 #cap = cv2.VideoCapture(0)  # stream from webcam
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
@@ -18,13 +19,25 @@ goal_img = cv2.imread('goal.png', 0)
 goal_contours, hierarchy = cv2.findContours(goal_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 goal_contour = goal_contours[0]
 
+# Whether or not to show the video and to save the video
+show_video = True
+save_video = False
+
+# Variables needed for saving the video
+if save_video:
+    frame_width = cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+    frame_height = cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+    filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
+    video_writer = cv2.VideoWriter(filename, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (int(frame_width), int(frame_height)))
+
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
         # Find outlines of white objects
         white = cv2.inRange(frame, (230, 230, 230), (255, 255, 255))
-        cv2.imshow('white threshold', white)  # show the threshold'ed image
+        if show_video:
+            cv2.imshow('white threshold', white)  # show the threshold'ed image
         contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
         # Approximate outlines into polygons
@@ -48,9 +61,12 @@ while(cap.isOpened()):
         else:
             cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 6) # Draw best match for U shape
 
-        cv2.imshow('tyr-vision', frame)  # show the image output on-screen
+        if show_video:
+            cv2.imshow('tyr-vision', frame)  # show the image output on-screen
+        if save_video:
+            video_writer.write(frame)
 
-        k = cv2.waitKey(25)  # wait 25ms for a keystroke
+        k = cv2.waitKey(1)  # wait 25ms for a keystroke
         if k == ord('q'):  # exit with the 'q' key
             print "Exiting playback!"
             break
