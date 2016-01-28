@@ -19,6 +19,7 @@ goal_contours, hierarchy = cv2.findContours(goal_img, cv2.RETR_LIST, cv2.CHAIN_A
 goal_contour = goal_contours[0]
 
 while(cap.isOpened()):
+    pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
         # Find outlines of white objects
@@ -45,6 +46,7 @@ while(cap.isOpened()):
 
         if best_match is None:
             print "No match"
+            pause = True
         else:
             cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 6) # Draw best match for U shape
 
@@ -55,6 +57,9 @@ while(cap.isOpened()):
             print "Exiting playback!"
             break
         elif k == ord(' '):  # pause with the spacebar
+            pause = True
+
+        if pause:
             print "Pausing video"
             while True:
                 if cv2.waitKey(25) == ord(' '):  # resume with the spacebar
