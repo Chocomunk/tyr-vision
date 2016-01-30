@@ -14,12 +14,12 @@ import time
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
 cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
 
-# Load expected U shape and extract contour
+# Load reference U shape and extract its contour
 goal_img = cv2.imread('goal.png', 0)
 goal_contours, hierarchy = cv2.findContours(goal_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 goal_contour = goal_contours[0]
 
-# Whether or not to show the video and to save the video
+# Video options
 show_video = True
 save_video = False
 
@@ -32,12 +32,11 @@ if save_video:
 
 while(cap.isOpened()):
     pause = False
-    ret, frame = cap.read()  # read a frame
-    if ret:
+    try:
+        ret, frame = cap.read()  # read a frame
+
         # Find outlines of white objects
         white = cv2.inRange(frame, (230, 230, 230), (255, 255, 255))
-        if show_video:
-            cv2.imshow('white threshold', white)  # show the threshold'ed image
         contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
         # Approximate outlines into polygons
@@ -47,9 +46,8 @@ while(cap.isOpened()):
             approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
             # Filter through contours to detect a goal
             if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
-                cv2.drawContours(frame, [approx], 0, (0,0,255), 5)  # draw the contour in red
-                x,y,w,h = cv2.boundingRect(approx)  # find a non-rotated bounding rectangle
-                cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)  # draw bounding rectangle in green
+                cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
+                # test to see if this contour is the best match
                 similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
                 if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
                     best_match_similarity = similarity
@@ -58,13 +56,25 @@ while(cap.isOpened()):
         if best_match is None:
             print "No match"
             #pause = True
-        else:
-            cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 6) # Draw best match for U shape
+        else:  # draw the best match and its bounding box
+            cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 3) # Draw best match for U shape in cyan
+            x,y,w,h = cv2.boundingRect(best_match)  # find a non-rotated bounding rectangle
+            cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)  # draw bounding rectangle in green
+
+            # Draw goal contour based on the bounding box
+            tape_x = int(w/10)
+            tape_y = int(h/7)
+            goal_x = x+tape_x
+            goal_y = y-h+tape_y
+            goal_w = int(w*4/5)
+            goal_h = int(h*12/7)
+            cv2.rectangle(frame, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal in purple
+
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
-        if save_video:
-            video_writer.write(frame)
+            if save_video:
+                video_writer.write(frame)
 
         k = cv2.waitKey(1)  # wait 25ms for a keystroke
         if k == ord('q'):  # exit with the 'q' key
@@ -80,9 +90,13 @@ while(cap.isOpened()):
                     print "Resuming video"
                     break
 
-    else:
+                else:
+                    break
+
+    except:
+        print "Couldn't read video stream"
         break
 
-cap.release()  # close the webcam interface
+cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
 
