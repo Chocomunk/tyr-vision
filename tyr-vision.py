@@ -32,8 +32,8 @@ if save_video:
 
 while(cap.isOpened()):
     pause = False
-    try:
-        ret, frame = cap.read()  # read a frame
+    ret, frame = cap.read()  # read a frame
+    if ret:
 
         # Find outlines of white objects
         white = cv2.inRange(frame, (230, 230, 230), (255, 255, 255))
@@ -68,7 +68,11 @@ while(cap.isOpened()):
             goal_y = y-h+tape_y
             goal_w = int(w*4/5)
             goal_h = int(h*12/7)
-            cv2.rectangle(frame, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal in purple
+            cv2.rectangle(frame, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal bounding box in purple
+            # circle parameters
+            radius = int(goal_w/2)
+            center = (goal_x+radius, goal_y+radius)
+            cv2.circle(frame, center, radius, (0,255,255), 2)
 
 
         if show_video:
@@ -90,12 +94,6 @@ while(cap.isOpened()):
                     print "Resuming video"
                     break
 
-                else:
-                    break
-
-    except:
-        print "Couldn't read video stream"
-        break
 
 cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
