@@ -23,12 +23,14 @@ goal_contour = goal_contours[0]
 show_video = True
 save_video = False
 
+# Video dimensions
+frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+
 # Variables needed for saving the video
 if save_video:
-    frame_width = cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
-    frame_height = cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
     filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
-    video_writer = cv2.VideoWriter(filename, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (int(frame_width), int(frame_height)))
+    video_writer = cv2.VideoWriter(filename, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (frame_width, frame_height))
 
 def find_best_match(contours):
     # Approximate outlines into polygons
@@ -64,6 +66,14 @@ def display_match(match, img):
     radius = int(goal_w/2)
     center = (goal_x+radius, goal_y+radius)
     cv2.circle(img, center, radius, (0,255,255), 2)
+    # Display center point and lines
+    center_x, center_y = match_center(best_match)
+    cv2.circle(frame, (center_x, center_y), 1, (0, 128, 255), 2) # Center point in orange
+    cv2.line(frame, (center_x, 0), (center_x, frame_height), (255, 128, 0), 2) # Vertical line through center in dark blue
+
+def match_center(match):
+    x, y, w, h = cv2.boundingRect(match)
+    return int(x + w/2), y
 
 while(cap.isOpened()):
     pause = False
@@ -80,6 +90,8 @@ while(cap.isOpened()):
             #pause = True
         else:  # draw the best match and its bounding box
             display_match(best_match, frame)
+
+        cv2.line(frame, (int(frame_width / 2), 0), (int(frame_width / 2), frame_height), (0, 0, 0), 2) # Vertical line through center of video (black)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
