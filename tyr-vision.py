@@ -85,11 +85,19 @@ while(cap.isOpened()):
 
         best_match = find_best_match(contours)
 
+        cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
         if best_match is None:
-            print "No match"
+            cv2.putText(frame, "No match", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
             #pause = True
         else:  # draw the best match and its bounding box
             display_match(best_match, frame)
+            center_x, center_y = match_center(best_match)
+            difference = center_x - int(frame_width / 2)
+            if difference >= 0:
+                text = "%dpx to right" % (difference)
+            else:
+                text = "%dpx to left" % (-difference)
+            cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
         cv2.line(frame, (int(frame_width / 2), 0), (int(frame_width / 2), frame_height), (0, 0, 0), 2) # Vertical line through center of video (black)
 
@@ -98,7 +106,7 @@ while(cap.isOpened()):
             if save_video:
                 video_writer.write(frame)
 
-        k = cv2.waitKey(1)  # wait 25ms for a keystroke
+        k = cv2.waitKey(25)  # wait 25ms for a keystroke
         if k == ord('q'):  # exit with the 'q' key
             print "Exiting playback!"
             break
