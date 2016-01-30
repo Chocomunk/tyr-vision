@@ -30,50 +30,56 @@ if save_video:
     filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
     video_writer = cv2.VideoWriter(filename, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (int(frame_width), int(frame_height)))
 
+def find_best_match(contours):
+    # Approximate outlines into polygons
+    best_match = None # Stores best matching contour for U shape
+    best_match_similarity = 1000 # Similarity of said contour to expected U shape
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
+        # Filter through contours to detect a goal
+        if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
+            cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
+            # test to see if this contour is the best match
+            similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
+            if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
+                best_match_similarity = similarity
+                best_match = approx
+    return best_match
+
+# Draw match information on img
+def display_match(match, img):
+    cv2.drawContours(img, [match], 0, (255, 255, 0), 3) # Draw best match for U shape in cyan
+    x,y,w,h = cv2.boundingRect(match)  # find a non-rotated bounding rectangle
+    cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)  # draw bounding rectangle in green
+
+    # Draw goal contour based on the bounding box
+    tape_x = int(w/10)
+    tape_y = int(h/7)
+    goal_x = x+tape_x
+    goal_y = y-h+tape_y
+    goal_w = int(w*4/5)
+    goal_h = int(h*12/7)
+    cv2.rectangle(img, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal bounding box in purple
+    # circle parameters
+    radius = int(goal_w/2)
+    center = (goal_x+radius, goal_y+radius)
+    cv2.circle(img, center, radius, (0,255,255), 2)
+
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
-
         # Find outlines of white objects
         white = cv2.inRange(frame, (230, 230, 230), (255, 255, 255))
         contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
-        # Approximate outlines into polygons
-        best_match = None # Stores best matching contour for U shape
-        best_match_similarity = 1000 # Similarity of said contour to expected U shape
-        for contour in contours:
-            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
-            # Filter through contours to detect a goal
-            if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
-                cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
-                # test to see if this contour is the best match
-                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
-                if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
-                    best_match_similarity = similarity
-                    best_match = approx
+        best_match = find_best_match(contours)
 
         if best_match is None:
             print "No match"
             #pause = True
         else:  # draw the best match and its bounding box
-            cv2.drawContours(frame, [best_match], 0, (255, 255, 0), 3) # Draw best match for U shape in cyan
-            x,y,w,h = cv2.boundingRect(best_match)  # find a non-rotated bounding rectangle
-            cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)  # draw bounding rectangle in green
-
-            # Draw goal contour based on the bounding box
-            tape_x = int(w/10)
-            tape_y = int(h/7)
-            goal_x = x+tape_x
-            goal_y = y-h+tape_y
-            goal_w = int(w*4/5)
-            goal_h = int(h*12/7)
-            cv2.rectangle(frame, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal bounding box in purple
-            # circle parameters
-            radius = int(goal_w/2)
-            center = (goal_x+radius, goal_y+radius)
-            cv2.circle(frame, center, radius, (0,255,255), 2)
-
+            display_match(best_match, frame)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
@@ -93,7 +99,8 @@ while(cap.isOpened()):
                 if cv2.waitKey(25) == ord(' '):  # resume with the spacebar
                     print "Resuming video"
                     break
-
+    else: # Close program when video ends
+        break
 
 cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
