@@ -69,14 +69,12 @@ def find_best_match(frame):
     return best_match
 
 
-def draw_target(frame, target):
-    """ Draws the given target contour with extrapolated goal shape and
-    targeting visuals onto the given image. """
-    cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
-    x,y,w,h = cv2.boundingRect(target)  # find a non-rotated bounding rectangle
-    cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), 2)  # draw bounding rectangle in green
+def draw_goal(frame, target):
+    """ Given the target controur, draws the extrapolated goal shape. """
 
-    """
+    x,y,w,h = cv2.boundingRect(target)  # find a non-rotated bounding rectangle
+    #cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), 2)  # draw bounding rectangle in green
+
     # Draw goal contour based on the bounding box
     tape_x = int(w/10)
     tape_y = int(h/7)
@@ -84,48 +82,61 @@ def draw_target(frame, target):
     goal_y = y-h+tape_y
     goal_w = int(w*4/5)
     goal_h = int(h*12/7)
-    cv2.rectangle(frame, (goal_x, goal_y), (goal_x+goal_w, goal_y+goal_h), (255,0,255), 2)  # draw the goal bounding box in purple
     # circle parameters
     radius = int(goal_w/2)
     center = (goal_x+radius, goal_y+radius)
-    cv2.circle(frame, center, radius, (0,255,255), 2)
-    """
-    # Display center point and lines
-    center_x, center_y = target_center(target)
-    #cv2.circle(frame, (center_x, center_y), 1, (0, 128, 255), 2) # Draw target center point in orange
-    cv2.line(frame, (0, center_y), (frame_width, center_y), (255, 128, 0), 2) # Horizontal line through target center in dark blue
-    cv2.line(frame, (center_x, 0), (center_x, frame_height), (255, 128, 0), 2) # Vertical line through target center in dark blue
+    cv2.rectangle(frame, (goal_x, goal_y+radius), (goal_x+goal_w, goal_y+goal_h), (255, 0, 255), -1)  # draw the goal bounding box in purple
+    cv2.circle(frame, center, radius, (255, 0, 255), -1)
 
 
 def target_center(target):
-    """ Returns the center point of a given target contour """
+    """ Returns the top center point of a given target contour """
     x, y, w, h = cv2.boundingRect(target)
     return int(x + w/2), y
 
 
+def image_center():
+    """ Returns the center coordinate of the image """
+    return int(frame_width/2), int(frame_height/2)
+
+
 def draw_base_HUD(frame):
-    """ Draws horizontal and vertical lines through center of the given frame """
-    cv2.line(frame, (int(frame_width / 2), 0), (int(frame_width / 2), frame_height), (0, 0, 0), 2) # Vertical line through center of video (black)
-    cv2.line(frame, (0, int(frame_height/2)), (frame_width, int(frame_height/2)), (0, 0, 0), 2)
+    """ Draw base crosshairs in black on the given frame. Returns the frame's
+    center coordinate. """
+    center_x, center_y = image_center()
+
+    cv2.line(frame, (center_x, 0), (center_x, frame_height), (0, 0, 0), 2) # Vertical line
+    cv2.line(frame, (0, center_y), (frame_width, center_y), (0, 0, 0), 2) # Horizontal line
+    cv2.circle(frame, (center_x, center_y), 25, (0, 0, 0), 2) # center circle
+    return center_x, center_y
 
 
 def draw_targeting_HUD(frame, target):
-    """ Draws the target by calling draw_target(), as well as crosshair lines
-    and a textbook showing the target's displacement. """
+    """ Draws the target, goal (via the draw_goal() function), crosshair lines,
+    displacment line, and a text box showing the target's displacement. """
+
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
     if target is None:
-        cv2.putText(frame, "No match", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
+        cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
         #pause = True
     else:  # draw the best match and its bounding box
-        draw_target(frame, target)
-        center_x, center_y = target_center(target)
-        difference = center_x - int(frame_width / 2)
-        if difference >= 0:
-            text = "%dpx to right" % (difference)
-        else:
-            text = "%dpx to left" % (-difference)
+        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
 
-        cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
+        draw_goal(frame, target)
+        center_x, center_y = image_center()
+
+        # Display target crosshairs
+        target_x, target_y = target_center(target)
+        cv2.line(frame, (0, target_y), (frame_width, target_y), (255, 128, 0), 2) # Horizontal line through target center in dark blue
+        cv2.line(frame, (target_x, 0), (target_x, frame_height), (255, 128, 0), 2) # Vertical line through target center in dark blue
+        cv2.circle(frame, (target_x, target_y), 25, (255, 128, 0), 2)
+
+        # Show the displacement as a vector in Cartesian coordinates (green)
+        displacement_x = target_x - center_x
+        displacement_y = center_y - target_y
+        cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
+        text = "Displacement: <%d, %d>" % (displacement_x, displacement_y)
+        cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
 
 
 """ BEGIN video processing loop """
