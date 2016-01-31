@@ -133,8 +133,8 @@ while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
+        best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_base_HUD(frame)
-        best_match = find_best_match(frame)
         draw_targeting_HUD(frame, best_match)
 
         if show_video:
