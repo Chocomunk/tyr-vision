@@ -9,6 +9,19 @@ from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
 import time
+import serial
+
+
+""" Serial Output """
+#port = '/dev/ttyS0' # primary DB9 RS-232 port
+port = '/dev/ttyUSB0' # primary USB-serial port
+
+try:
+    ser = serial.Serial(port, baudrate=9600)
+except:
+    ser = None
+    print "Couldn't open serial port!"
+
 
 """ Video Input Settings """
 #cap = cv2.VideoCapture(0)  # stream from webcam
@@ -127,16 +140,22 @@ def draw_targeting_HUD(frame, target):
 
         # Display target crosshairs
         target_x, target_y = target_center(target)
+        """
         cv2.line(frame, (0, target_y), (frame_width, target_y), (255, 128, 0), 2) # Horizontal line through target center in dark blue
         cv2.line(frame, (target_x, 0), (target_x, frame_height), (255, 128, 0), 2) # Vertical line through target center in dark blue
         cv2.circle(frame, (target_x, target_y), 25, (255, 128, 0), 2)
+        """
 
         # Show the displacement as a vector in Cartesian coordinates (green)
         displacement_x = target_x - center_x
         displacement_y = center_y - target_y
         cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
-        text = "Displacement: <%d, %d>" % (displacement_x, displacement_y)
+        text = "<%d, %d>" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+
+        if ser != None:
+            # send displacement data over serial
+            ser.write(text)
 
 
 """ BEGIN video processing loop """
@@ -173,4 +192,4 @@ while(cap.isOpened()):
 """ Program clean up """
 cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
-
+ser.close()  # close the serial interface
