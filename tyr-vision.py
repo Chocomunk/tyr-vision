@@ -14,10 +14,15 @@ import serial
 
 """ Serial Output """
 #port = '/dev/ttyS0' # primary DB9 RS-232 port
-port = '/dev/ttyUSB0' # primary USB-serial port
+#port = '/dev/ttyUSB0' # primary USB-serial port
+port = '/dev/ttyTHS0'  # primary 1.8V UART on the Jetson
+
+baudrate = 9600
+#baudrate = 15200
 
 try:
-    ser = serial.Serial(port, baudrate=9600)
+    ser = serial.Serial(port, baudrate)
+    ser.write("\n\nBEGIN TYR-VISION\n\n")
 except:
     ser = None
     print "Couldn't open serial port!"
@@ -29,7 +34,7 @@ except:
 cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
 
 # Video options
-show_video = True
+show_video = False
 save_video = False
 
 # Video dimensions
@@ -150,7 +155,7 @@ def draw_targeting_HUD(frame, target):
         displacement_x = target_x - center_x
         displacement_y = center_y - target_y
         cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
-        text = "<%d, %d>" % (displacement_x, displacement_y)
+        text = "<%d, %d>\n" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
 
         if ser != None:
