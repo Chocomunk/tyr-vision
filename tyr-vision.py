@@ -12,6 +12,30 @@ import time
 import serial
 
 
+""" Video Streaming """
+
+
+import socket 
+from threading import Thread
+
+connectedUsers = []
+
+IP = "0.0.0.0"
+PORT = 5005
+
+try:
+	s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+	s.bind((IP,PORT))
+except:
+	print "Sockets aren't working"
+	s=None
+def check_for_users(): 
+	connectedUsers.append(s.recvfrom(0)[1])
+
+Thread(target=check_for_users).start()
+
+
+
 """ Serial Output """
 #port = '/dev/ttyS0' # primary DB9 RS-232 port
 #port = '/dev/ttyUSB0' # primary USB-serial port
@@ -36,6 +60,8 @@ cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3
 # Video options
 show_video = False
 save_video = False
+
+
 
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
@@ -162,6 +188,12 @@ def draw_targeting_HUD(frame, target):
             # send displacement data over serial
             ser.write(text)
 
+def convert_frame_to_text(frame):
+	return ''.join(frame)
+
+def send_video(frame):
+	for user in connectedUsers:
+		s.sendto(convert_frame_to_text(frame))
 
 """ BEGIN video processing loop """
 while(cap.isOpened()):
@@ -171,6 +203,9 @@ while(cap.isOpened()):
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_base_HUD(frame)
         draw_targeting_HUD(frame, best_match)
+
+        if len(connectedUsers) > 0:
+        	send_video(frame)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
