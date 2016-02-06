@@ -193,7 +193,7 @@ def convert_frame_to_text(frame):
 
 def send_video(frame):
 	for user in connectedUsers:
-		s.sendto(convert_frame_to_text(frame))
+		s.sendto(convert_frame_to_text(frame),user)
 
 """ BEGIN video processing loop """
 while(cap.isOpened()):
