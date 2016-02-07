@@ -8,39 +8,29 @@
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
-import time
 import serial
 import sys
 import time
 
 
+""" DEFAULT SETTINGS """
 """ Serial Output """
 #port = '/dev/ttyS0' # primary DB9 RS-232 port
 #port = '/dev/ttyUSB0' # primary USB-serial port
 port = '/dev/ttyTHS0'  # primary 1.8V UART on the Jetson
-
 baudrate = 9600
 #baudrate = 15200
 
-try:
-    ser = serial.Serial(port, baudrate)
-    ser.write("\n\nBEGIN TYR-VISION\n\n")
-except:
-    ser = None
-    print "Couldn't open serial port!"
-
-
-""" Video Input Settings """
+""" Video Settings """
 #cap = cv2.VideoCapture(0)  # stream from webcam
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
 cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
-
-# Video options
 show_video = False
 save_video = False
 
 
-""" Command Line Flags """
+
+""" PROCESS COMMAND LINE FLAGS """
 i = 1
 while i < len(sys.argv):
     flag = sys.argv[i]
@@ -51,6 +41,7 @@ while i < len(sys.argv):
             save_video = True
         elif flag == "--device":
             i += 1
+            cap.release()  # close default stream before opening a new one
             cap = cv2.VideoCapture(sys.argv[i])
         elif flag == "--port":
             i += 1
@@ -66,7 +57,15 @@ while i < len(sys.argv):
     i += 1
 
 
-""" Video Settings Continued """
+""" OPEN I/O INTERFACES """
+# Open serial interface, if available
+try:
+    ser = serial.Serial(port, baudrate)
+    ser.write("\n\nBEGIN TYR-VISION\n\n")
+except:
+    ser = None
+    print "Couldn't open serial port!"
+
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
@@ -160,8 +159,8 @@ def draw_base_HUD(frame):
 
 
 def draw_targeting_HUD(frame, target):
-    """ Draws the target, goal (via the draw_goal() function), crosshair lines,
-    displacement line, and a text box showing the target's displacement. """
+    """ Draws the target, goal (via the draw_goal() function),
+    displacement vector, and a text box showing the target's displacement. """
 
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
     if target is None:
@@ -169,44 +168,49 @@ def draw_targeting_HUD(frame, target):
         #pause = True
     else:  # draw the best match and its bounding box
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
-
         draw_goal(frame, target)
-        center_x, center_y = image_center()
 
-        # Display target crosshairs
+        center_x, center_y = image_center()
         target_x, target_y = target_center(target)
-        """
-        cv2.line(frame, (0, target_y), (frame_width, target_y), (255, 128, 0), 2) # Horizontal line through target center in dark blue
-        cv2.line(frame, (target_x, 0), (target_x, frame_height), (255, 128, 0), 2) # Vertical line through target center in dark blue
-        cv2.circle(frame, (target_x, target_y), 25, (255, 128, 0), 2)
-        """
 
         # Show the displacement as a vector in Cartesian coordinates (green)
         displacement_x = target_x - center_x # Positive when to the right of center
         displacement_y = center_y - target_y # Positive when above center
         cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
+        # Overlay the displacement values as text
         text = "<%d, %d>" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
-
+        # Send displacement data over serial
         send_data(displacement_x, displacement_y)
 
+
 def draw_fps(frame, fps):
+    """ Draws the given framerate onto the given frame """
     cv2.rectangle(frame, (0, 48), (320, 96), (0, 0, 0), -1)
-    cv2.putText(frame, "FPS: %f" % fps, (16, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
+    cv2.putText(frame, "FPS: %f" % fps, (16, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
 
 def send_data(*data):
-    """ Takes a list of data to send and sends it in a comma separated list """
+    """
+    Takes a list of data to send and sends it over serial in a comma
+    separated list. Each data element in a packet is separated by a tab, and each
+    packet is separated by a linefeed.
+
+    Example: If the displacement vector is <-210, 42> then we send:
+    -210\t42\n
+
+    """
     if ser != None:
         string = ""
         for i in range(0, len(data)):
-            string += str(data[i]) + ", "
+            string += str(data[i]) + "\t"
         string = string[:-2] # Remove trailing ', '
-
+        string += '\n'  # linefeed at end of line
+        #print string,  # print without an extra linefeed
         ser.write(string)
 
 
-""" BEGIN video processing loop """
+""" VIDEO PROCESSING LOOP """
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
@@ -240,7 +244,7 @@ while(cap.isOpened()):
         break
 
 
-""" Program clean up """
+""" CLEAN UP """
 cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
 if ser != None:
