@@ -20,15 +20,15 @@ from threading import Thread
 
 connectedUsers = []
 
-IP = "0.0.0.0"
+IP = "127.0.0.1"
 PORT = 5005
 
-try:
-	s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-	s.bind((IP,PORT))
-except:
-	print "Sockets aren't working"
-	s=None
+
+s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+s.bind((IP,PORT))
+#except:
+#	print "Sockets aren't working"
+#	s=None
 def check_for_users(): 
 	connectedUsers.append(s.recvfrom(0)[1])
 
@@ -194,10 +194,13 @@ def convert_frame_to_text(frame):
 		for width in height:
 			for pixel in width:
 				data+=chr(pixel)
+	return data
 
 def send_video(frame):
 	for user in connectedUsers:
-		s.sendto(convert_frame_to_text(frame),user)
+		data = convert_frame_to_text(frame)
+		for i in xrange(2048): s.sendto(data[:1350],user)
+
 
 """ BEGIN video processing loop """
 while(cap.isOpened()):
@@ -210,7 +213,7 @@ while(cap.isOpened()):
 
         if len(connectedUsers) > 0:
         	send_video(frame)
-
+		
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
             if save_video:
