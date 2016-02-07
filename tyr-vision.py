@@ -189,7 +189,11 @@ def draw_targeting_HUD(frame, target):
             ser.write(text)
 
 def convert_frame_to_text(frame):
-	return ''.join(frame)
+	data = ""
+	for height in frame:
+		for width in height:
+			for pixel in width:
+				data+=chr(pixel)
 
 def send_video(frame):
 	for user in connectedUsers:
