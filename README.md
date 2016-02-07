@@ -27,3 +27,10 @@ If you're using the system Python, run:
 Download the test video file [here](https://drive.google.com/open?id=0B3CtH7XCgLzOT0trdTlpc1c0UlE).  
 To run the program in a shell: `./tyr-vision.py`  
 To exit the program, press the 'q' key.
+
+#### Flags ####
+* `--show` or `-s` - Show the video feed
+* `--save` or `-S` - Save the video feed
+* `--device` - Set the device to pull the video from
+* `--port` - Set the location of the serial port
+* `--baudrate` - Set the baudrate
