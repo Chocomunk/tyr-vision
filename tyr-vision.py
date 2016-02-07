@@ -18,22 +18,22 @@ import serial
 import socket 
 from threading import Thread
 
-connectedUsers = []
 
 IP = "127.0.0.1"
 PORT = 5005
 
+user = ()
 
 s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 s.bind((IP,PORT))
 #except:
 #	print "Sockets aren't working"
 #	s=None
-def check_for_users(): 
-	connectedUsers.append(s.recvfrom(0)[1])
+streaming = True
 
-Thread(target=check_for_users).start()
-
+if streaming:
+	user=s.recvfrom(0)[1]
+	print user
 
 
 """ Serial Output """
@@ -188,18 +188,21 @@ def draw_targeting_HUD(frame, target):
             # send displacement data over serial
             ser.write(text)
 
-def convert_frame_to_text(frame):
-	data = ""
-	for height in frame:
-		for width in height:
-			for pixel in width:
-				data+=chr(pixel)
-	return data
-
 def send_video(frame):
-	for user in connectedUsers:
-		data = convert_frame_to_text(frame)
-		for i in xrange(2048): s.sendto(data[:1350],user)
+	data = ""
+	counter = 675
+	for i in xrange(720):
+		for j in xrange(1280):
+			for k in xrange(3):
+				if counter == 1: 
+					s.sendto(data+chr(frame[i,j,k]),user)
+					data = ""
+					counter = 675
+							
+				else:
+					data+=chr(frame[i,j,k])
+					counter-=1
+
 
 
 """ BEGIN video processing loop """
@@ -210,8 +213,8 @@ while(cap.isOpened()):
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_base_HUD(frame)
         draw_targeting_HUD(frame, best_match)
-
-        if len(connectedUsers) > 0:
+	print user
+        if user!=(None,None):
         	send_video(frame)
 		
         if show_video:
