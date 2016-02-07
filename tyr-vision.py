@@ -38,7 +38,8 @@ cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3
 show_video = False
 save_video = False
 
-# Read in command line flags
+
+""" Command Line Flags """
 i = 1
 while i < len(sys.argv):
     flag = sys.argv[i]
@@ -63,6 +64,8 @@ while i < len(sys.argv):
             save_video = True
     i += 1
 
+
+""" Video Settings Continued """
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
@@ -99,7 +102,7 @@ def find_best_match(frame):
 
     # Approximate outlines into polygons
     best_match = None # Variable to store best matching contour for U shape
-    best_match_similarity = 1000 # Similarity of said contour to expected U shape
+    best_match_similarity = 1000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
     for contour in contours:
         approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
         # Filter through contours to detect a goal
@@ -157,7 +160,7 @@ def draw_base_HUD(frame):
 
 def draw_targeting_HUD(frame, target):
     """ Draws the target, goal (via the draw_goal() function), crosshair lines,
-    displacment line, and a text box showing the target's displacement. """
+    displacement line, and a text box showing the target's displacement. """
 
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
     if target is None:
@@ -178,15 +181,24 @@ def draw_targeting_HUD(frame, target):
         """
 
         # Show the displacement as a vector in Cartesian coordinates (green)
-        displacement_x = target_x - center_x
-        displacement_y = center_y - target_y
+        displacement_x = target_x - center_x # Positive when to the right of center
+        displacement_y = center_y - target_y # Positive when above center
         cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
-        text = "<%d, %d>\n" % (displacement_x, displacement_y)
+        text = "<%d, %d>" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
 
-        if ser != None:
-            # send displacement data over serial
-            ser.write(text)
+        send_data(displacement_x, displacement_y)
+
+
+def send_data(*data):
+    """ Takes a list of data to send and sends it in a comma separated list """
+    if ser != None:
+        string = ""
+        for i in range(0, len(data)):
+            string += str(data[i]) + ", "
+        string = string[:-2] # Remove trailing ', '
+
+        ser.write(string)
 
 
 """ BEGIN video processing loop """
@@ -195,8 +207,8 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     if ret:
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
-        draw_base_HUD(frame)
         draw_targeting_HUD(frame, best_match)
+        draw_base_HUD(frame)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
@@ -204,7 +216,7 @@ while(cap.isOpened()):
                 video_writer.write(frame)
 
         k = cv2.waitKey(25)  # wait 25ms for a keystroke
-        if k == ord('q'):  # exit with the 'q' key
+        if k == ord('q') or k == 27:  # exit with the 'q' or 'esc' key
             print "Exiting playback!"
             break
         elif k == ord(' '):  # pause with the spacebar
