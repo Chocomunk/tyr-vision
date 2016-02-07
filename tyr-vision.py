@@ -11,6 +11,7 @@ import cv2
 import time
 import serial
 import sys
+import time
 
 
 """ Serial Output """
@@ -185,9 +186,13 @@ def draw_targeting_HUD(frame, target):
         displacement_y = center_y - target_y # Positive when above center
         cv2.line(frame, (center_x, center_y), (target_x, target_y), (0, 255, 0), 5)
         text = "<%d, %d>" % (displacement_x, displacement_y)
-        cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0))
+        cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
 
         send_data(displacement_x, displacement_y)
+
+def draw_fps(frame, fps):
+    cv2.rectangle(frame, (0, 48), (320, 96), (0, 0, 0), -1)
+    cv2.putText(frame, "FPS: %f" % fps, (16, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
 
 
 def send_data(*data):
@@ -205,17 +210,20 @@ def send_data(*data):
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
+    start = time.time()
     if ret:
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
+        end = time.time()
+        draw_fps(frame, 1.0 / (end - start))
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
             if save_video:
                 video_writer.write(frame)
 
-        k = cv2.waitKey(25)  # wait 25ms for a keystroke
+        k = cv2.waitKey(1)  # wait 1ms for a keystroke
         if k == ord('q') or k == 27:  # exit with the 'q' or 'esc' key
             print "Exiting playback!"
             break
@@ -225,7 +233,7 @@ while(cap.isOpened()):
         if pause:
             print "Pausing video"
             while True:
-                if cv2.waitKey(25) == ord(' '):  # resume with the spacebar
+                if cv2.waitKey(1) == ord(' '):  # resume with the spacebar
                     print "Resuming video"
                     break
     else: # Close program when video ends
