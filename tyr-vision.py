@@ -10,6 +10,7 @@ import numpy as np
 import cv2
 import time
 import serial
+import sys
 
 
 """ Serial Output """
@@ -36,6 +37,31 @@ cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3
 # Video options
 show_video = False
 save_video = False
+
+# Read in command line flags
+i = 1
+while i < len(sys.argv):
+    flag = sys.argv[i]
+    if flag[:2] == "--":
+        if flag == "--show":
+            show_video = True
+        elif flag == "--save":
+            save_video = True
+        elif flag == "--device":
+            i += 1
+            cap = cv2.VideoCapture(sys.argv[i])
+        elif flag == "--port":
+            i += 1
+            port = sys.argv[i]
+        elif flag == "--baudrate":
+            i += 1
+            baudrate = sys.argv[i]
+    elif flag[0] == "-":
+        if "s" in flag:
+            show_video = True
+        if "S" in flag:
+            save_video = True
+    i += 1
 
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
@@ -197,4 +223,5 @@ while(cap.isOpened()):
 """ Program clean up """
 cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
-ser.close()  # close the serial interface
+if ser != None:
+    ser.close()  # close the serial interface
