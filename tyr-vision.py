@@ -22,18 +22,22 @@ from threading import Thread
 IP = "127.0.0.1"
 PORT = 5005
 
-user = ()
 
-s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.bind((IP,PORT))
+s.listen(1)
+s=s.accept()[0]
+
+frame_until_stream = 1
+
 #except:
 #	print "Sockets aren't working"
 #	s=None
 streaming = True
 
-if streaming:
-	user=s.recvfrom(0)[1]
-	print user
+#if streaming:
+#	user=s.recvfrom(0)[1]
+#	print user
 
 
 """ Serial Output """
@@ -55,10 +59,10 @@ except:
 """ Video Input Settings """
 #cap = cv2.VideoCapture(0)  # stream from webcam
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
-cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
 
 # Video options
-show_video = False
+show_video = True
 save_video = False
 
 
@@ -164,7 +168,7 @@ def draw_targeting_HUD(frame, target):
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
         #pause = True
     else:  # draw the best match and its bounding box
-        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
+        cv2.drawContours(frame, [target], 0, (255, 255, 255), 3) # Draw target in cyan
 
         draw_goal(frame, target)
         center_x, center_y = image_center()
@@ -190,18 +194,17 @@ def draw_targeting_HUD(frame, target):
 
 def send_video(frame):
 	data = ""
-	counter = 675
-	for i in xrange(720):
-		for j in xrange(1280):
-			for k in xrange(3):
-				if counter == 1: 
-					s.sendto(data+chr(frame[i,j,k]),user)
-					data = ""
-					counter = 675
-							
-				else:
-					data+=chr(frame[i,j,k])
-					counter-=1
+	counter = 400
+	for i in xrange(180):
+		for j in xrange(320):
+			if counter == 1:
+				s.send(data+chr(frame[i,j]))
+				data = ""
+				counter = 400
+						
+			else:
+				data+=chr(frame[i][j])
+				counter-=1
 
 
 
@@ -210,13 +213,17 @@ while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
+	if streaming and frame_until_stream == 0:
+                send_video(cv2.cvtColor(cv2.resize(frame,(320,180)), cv2.COLOR_BGR2GRAY))
+                frame_until_stream = 5
+        else: frame_until_stream -=1
+	
+
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_base_HUD(frame)
         draw_targeting_HUD(frame, best_match)
-	print user
-        if user!=(None,None):
-        	send_video(frame)
 		
+
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
             if save_video:
