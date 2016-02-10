@@ -215,7 +215,7 @@ while(cap.isOpened()):
     if ret:
 	if streaming and frame_until_stream == 0:
                 send_video(cv2.cvtColor(cv2.resize(frame,(320,180)), cv2.COLOR_BGR2GRAY))
-                frame_until_stream = 5
+                frame_until_stream = 1
         else: frame_until_stream -=1
 	
 

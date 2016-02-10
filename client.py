@@ -20,7 +20,6 @@ def decode_data(data):
 
 	for i in xrange(HEIGHT):
 		for j in xrange(WIDTH):
-
 				frame[i][j] = numpy.uint8(ord(pixels[pixel_index]))
 				pixel_index+=1
 	return frame
