@@ -42,7 +42,18 @@ while i < len(sys.argv):
         elif flag == "--device":
             i += 1
             cap.release()  # close default stream before opening a new one
-            cap = cv2.VideoCapture(sys.argv[i])
+            try:
+                # an integer X indicates the webcam address, ie. /dev/videoX
+                cap = cv2.VideoCapture(int(sys.argv[i]))
+                # set resolution manually
+                # the Logitech C920 is 1080p
+                cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
+                cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
+                print "Opened webcam at: /dev/video%s" % sys.argv[i]
+            except:
+                # if it's not an integer, it's a filepath for a video
+                cap = cv2.VideoCapture(sys.argv[i])
+                print "Opened video file at: %s" % sys.argv[i]
         elif flag == "--port":
             i += 1
             port = sys.argv[i]
@@ -69,6 +80,7 @@ except:
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+print "Video resolution: %sx%s" % (frame_width, frame_height)
 
 # Variables needed for saving the video
 if save_video:
