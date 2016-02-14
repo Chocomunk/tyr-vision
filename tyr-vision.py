@@ -122,11 +122,50 @@ def find_best_match(frame):
         if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
             cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
             # test to see if this contour is the best match
-            similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
-            if similarity < best_match_similarity and similarity < 0.8: # Record contour most similar to U shape
-                best_match_similarity = similarity
+            if check_match(approx):
                 best_match = approx
+
     return best_match
+
+def check_match(contour):
+    """
+    Checks if the contour is the U shape by first finding the point that's
+    furthest to the bottom right. Since the points in a contour are always
+    ordered counterclockwise, we know which point in the contour is supposed
+    to match up to each point of the U shape based on its position in the
+    contour relative to the bottom-left point. Based off of this, we check to
+    make sure that the distance between two consecutive points is correctly
+    greater-than or less-than the distance between the two preceding points.
+    If the distances change in the same pattern as they should in the U shape,
+    then we consider the contour to be a match of the U shape.
+    """
+    # Get lower right point by finding point furthest from origin (top left)
+    biggest_dist = -1
+    start_index = -1
+    for i in range(0, 8):
+        # Technically the square of the distance, but it doesn't matter since
+        # we are only comparing the distances relative to each other
+        dist = contour[i][0][0]**2 + contour[i][0][1]**2
+        if dist > biggest_dist:
+            biggest_dist = dist
+            start_index = i
+
+    # Check if the match could be good
+    # should_be_less is a list of whether or not each distance should be less
+    # than the previous distance to be a U shape.
+    should_be_less = [True, False, False, True, True, False, False]
+    prev_dist = -1
+    for i in range(0, 8):
+        point_a = contour[(i + start_index) % 8][0]
+        point_b = contour[(i + start_index + 1) % 8][0]
+        dist = (point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2
+
+        if i > 0 and (dist < prev_dist) != should_be_less[i-1]:
+            return False
+
+        prev_dist = dist
+
+    return True
 
 
 def draw_goal(frame, target):
