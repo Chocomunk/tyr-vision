@@ -5,6 +5,20 @@
 # Team 8 Stronghold vision program
 #
 
+"""
+U-SHAPE REFERENCE
+
+ -  6-5 <- 2" wide   2-1
+ |  | |              | |
+ |  | |              | |
+ |  | |              | |
+14" | |              | |
+ |  | |              | |
+ |  | 4--------------3 |
+ -  7------------------0 (start)
+    |------- 18"-------|
+"""
+
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
@@ -140,15 +154,7 @@ def check_match(contour):
     then we consider the contour to be a match of the U shape.
     """
     # Get lower right point by finding point furthest from origin (top left)
-    biggest_dist = -1
-    start_index = -1
-    for i in range(0, 8):
-        # Technically the square of the distance, but it doesn't matter since
-        # we are only comparing the distances relative to each other
-        dist = contour[i][0][0]**2 + contour[i][0][1]**2
-        if dist > biggest_dist:
-            biggest_dist = dist
-            start_index = i
+    start_index = get_start_index(contour)
 
     # Check if the match could be good
     # should_be_less is a list of whether or not each distance should be less
@@ -167,6 +173,33 @@ def check_match(contour):
 
     return True
 
+def get_start_index(contour):
+    """
+    Returns the index of the point that's furthest to the bottom and the left
+    (furthest from the origin). This point is referred to as the start point
+    and the indices of other points will be made relative to it.
+    """
+    biggest_dist = -1
+    start_index = -1
+    for i in range(0, len(contour)):
+        # Technically the square of the distance, but it doesn't matter since
+        # we are only comparing the distances relative to each other
+        dist = contour[i][0][0]**2 + contour[i][0][1]**2
+        if dist > biggest_dist:
+            biggest_dist = dist
+            start_index = i
+
+    return start_index
+
+def get_nth_point(contour, n, start_index=-1):
+    """
+    Returns the nth point in a contour relative to the start index. If no start
+    index is provided, it is calculated using the get_start_index function.
+    """
+    if start_index == -1:
+        start_index = get_start_index(contour)
+
+    return contour[(start_index + n) % len(contour)][0]
 
 def draw_goal(frame, target):
     """ Given the target controur, draws the extrapolated goal shape. """
