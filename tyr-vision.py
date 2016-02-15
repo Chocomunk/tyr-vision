@@ -223,9 +223,9 @@ def draw_goal(frame, target):
 
 def target_center(target):
     """ Returns the top center point of a given target contour """
-    x, y, w, h = cv2.boundingRect(target)
-    return int(x + w/2), y
-
+    left_pt = get_nth_point(target, 6)
+    right_pt = get_nth_point(target, 1)
+    return int((left_pt[0] + right_pt[0]) / 2), int((left_pt[1] + right_pt[1]) / 2)
 
 def image_center():
     """ Returns the center coordinate of the image """
