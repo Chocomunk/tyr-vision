@@ -28,7 +28,7 @@ s.bind((IP,PORT))
 s.listen(1)
 s=s.accept()[0]
 
-frame_until_stream = 0
+frame_until_stream = 2
 
 #except:
 #	print "Sockets aren't working"
@@ -194,16 +194,16 @@ def draw_targeting_HUD(frame, target):
 
 def send_video(frame):
 	data = "" # the data we are going to send
-	counter = 300 # size of each packet
+	counter = 150 # size of each packet
 	sent = 0 # for debugging
 	s.send(chr(0)) # Send a null byte to mark a new frame
-	for i in xrange(240): #height
-		for j in xrange(320): #width
+	for i in xrange(120): #height
+		for j in xrange(160): #width
 			if counter == 1: # if we need to send
 				sent+=1 # for debugging
 				s.send(data+chr(frame[i,j]))#send the data 
 				data = ""
-				counter = 300
+				counter = 150
 						
 			else:
 				data+=chr(frame[i][j])
@@ -217,7 +217,7 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     if ret:
 	if streaming and frame_until_stream == 0:
-                send_video(cv2.cvtColor(cv2.resize(frame,(320,240)), cv2.COLOR_BGR2GRAY))
+                send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
                 frame_until_stream = 2
         else: frame_until_stream -=1
 	
