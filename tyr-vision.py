@@ -19,7 +19,7 @@ import socket
 from threading import Thread
 
 
-IP = "127.0.0.1"
+IP = "192.168.0.101"
 PORT = 5005
 
 
@@ -28,7 +28,7 @@ s.bind((IP,PORT))
 s.listen(1)
 s=s.accept()[0]
 
-frame_until_stream = 1
+frame_until_stream = 0
 
 #except:
 #	print "Sockets aren't working"
@@ -57,12 +57,12 @@ except:
 
 
 """ Video Input Settings """
-#cap = cv2.VideoCapture(0)  # stream from webcam
+cap = cv2.VideoCapture(0)  # stream from webcam
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
-cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+#cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
 
 # Video options
-show_video = True
+show_video = False
 save_video = False
 
 
@@ -193,19 +193,22 @@ def draw_targeting_HUD(frame, target):
             ser.write(text)
 
 def send_video(frame):
-	data = ""
-	counter = 400
-	for i in xrange(180):
-		for j in xrange(320):
-			if counter == 1:
-				s.send(data+chr(frame[i,j]))
+	data = "" # the data we are going to send
+	counter = 300 # size of each packet
+	sent = 0 # for debugging
+	s.send(chr(0)) # Send a null byte to mark a new frame
+	for i in xrange(240): #height
+		for j in xrange(320): #width
+			if counter == 1: # if we need to send
+				sent+=1 # for debugging
+				s.send(data+chr(frame[i,j]))#send the data 
 				data = ""
-				counter = 400
+				counter = 300
 						
 			else:
 				data+=chr(frame[i][j])
 				counter-=1
-
+	print sent
 
 
 """ BEGIN video processing loop """
@@ -214,8 +217,8 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     if ret:
 	if streaming and frame_until_stream == 0:
-                send_video(cv2.cvtColor(cv2.resize(frame,(320,180)), cv2.COLOR_BGR2GRAY))
-                frame_until_stream = 1
+                send_video(cv2.cvtColor(cv2.resize(frame,(320,240)), cv2.COLOR_BGR2GRAY))
+                frame_until_stream = 2
         else: frame_until_stream -=1
 	
 
