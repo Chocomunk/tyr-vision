@@ -31,15 +31,27 @@ def main():
 #try:
 	while 1:
 		print "Stared Decode"
-		while s.recv(1) != chr(0): pass # null byte marks a new frame
-		frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))
-		print "Finished Decode"
-		#import ipdb; ipdb.set_trace()
-		if frame != None:
-			cv2.imshow('tyr-vision', cv2.resize(frame,(1280,720)))  # show the image output on-screen
-			cv2.waitKey(50)
-			if save_video:
-				pass
+		#while s.recv(1) != chr(0): pass # null byte marks a new frame
+		
+		data = ""
+
+		for i in xrange(128):
+			incoming_packet = s.recv(BUFFER_SIZE)
+			if incoming_packet != chr(0): data += incoming_packet
+			else: 
+				data = None
+				break
+		if data != None:
+			frame = decode_data(data)
+
+			#frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))
+			print "Finished Decode"
+			#import ipdb; ipdb.set_trace()
+			if frame != None:
+				cv2.imshow('tyr-vision', cv2.resize(frame,(1280,720)))  # show the image output on-screen
+				cv2.waitKey(50)
+				if save_video:
+					pass
 #except KeyboardInterrupt:
 #	pass
 main()
