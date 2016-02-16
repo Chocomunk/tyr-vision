@@ -37,8 +37,9 @@ baudrate = 9600
 
 """ Video Settings """
 #cap = cv2.VideoCapture(0)  # stream from webcam
-#cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
-cap = cv2.VideoCapture('mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+#cap = cv2.VideoCapture('video_in/mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+cap = cv2.VideoCapture('video_in/12ft.mp4')
+#cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
 
@@ -98,8 +99,10 @@ print "Video resolution: %sx%s" % (frame_width, frame_height)
 
 # Variables needed for saving the video
 if save_video:
+    folder = 'video_out/'  # eventually replace this with the SD card folder
     filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
-    video_writer = cv2.VideoWriter(filename, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (frame_width, frame_height))
+    path = folder + filename
+    video_writer = cv2.VideoWriter(path, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (frame_width, frame_height))
 
 
 """ Reference Target Contour """
