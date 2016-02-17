@@ -60,7 +60,7 @@ except:
 cap = cv2.VideoCapture(0)  # stream from webcam
 #cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
 #cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
-
+#cap = cv2.VideoCapture('mini-field.mp4')
 # Video options
 show_video = False
 save_video = False
@@ -194,7 +194,7 @@ def draw_targeting_HUD(frame, target):
 
 def send_video(frame):
 	data = "" # the data we are going to send
-	counter = 150 # size of each packet
+	counter = 120 # size of each packet
 	sent = 0 # for debugging
 	s.send(chr(0)) # Send a null byte to mark a new frame
 	for i in xrange(120): #height
@@ -203,12 +203,11 @@ def send_video(frame):
 				sent+=1 # for debugging
 				s.send(data+chr(frame[i,j]))#send the data 
 				data = ""
-				counter = 150
+				counter = 120
 						
 			else:
 				data+=chr(frame[i][j])
 				counter-=1
-	print sent
 
 
 """ BEGIN video processing loop """
