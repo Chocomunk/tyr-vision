@@ -49,9 +49,14 @@ def data_generator():
 
 
 def garbage_generator(mode):
-    """ Returns a random string after waiting for a random delay """
-    if mode == 0: # alternate between all 4 garbage modes
-        j = output_counter % 4 + 1
+    """ Returns a random string depending on the mode specified """
+    mode_count = 5  # number of possible modes, excluding mode 0
+    if not 0 <= mode <= mode_count:
+        raise Exception( """Garbage mode is out of range!
+        Please specify an integer ranging from 0 to %s""" % mode_count)
+
+    if mode == 0: # alternate between all 4 garbage modes for each output
+        j = output_counter % mode_count + 1
     else:
         j = mode
 
@@ -63,6 +68,10 @@ def garbage_generator(mode):
         text = "asdf\thjkl\n"
     elif j == 4:  # random binary data
         text = ''.join([chr(random.randint(0,255)) for i in xrange(20)]) + "\n"
+    elif j == 5:  # send just the whitespace
+        text = "\t\n"
+
+    time.sleep(random.random())  # wait for a random duration up to 1 second
     return text
 
 
@@ -81,6 +90,7 @@ def output(text):
         ser.write(text)
         if loopback:  # Note: loopback buffer is not flushed until \n is sent or user exits with ^C
             print os.read(master, 1000),
+
 
 
 """ PROCESS COMMAND LINE ARGUMENTS """
