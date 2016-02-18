@@ -25,56 +25,48 @@ import cv2
 import serial
 import sys
 import time
-
-
-<<<<<<< HEAD
-""" Video Streaming """
-
-
-import socket 
+import socket
 from threading import Thread
+
+
+"""
+Video Streaming
+"""
 
 
 IP = "10.0.8.202"
 PORT = 56541
 
 
-s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.bind((IP,PORT))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((IP, PORT))
 s.listen(1)
-s=s.accept()[0]
+s = s.accept()[0]
 
 frame_until_stream = 2
 
-#	s=None
 streaming = True
 
-#if streaming:
-#	user=s.recvfrom(0)[1]
-#	print user
 
-
-=======
 """ DEFAULT SETTINGS """
->>>>>>> master
 """ Serial Output """
-#port = '/dev/ttyS0' # primary DB9 RS-232 port
-#port = '/dev/ttyUSB0' # primary USB-serial port
+# port = '/dev/ttyS0' # primary DB9 RS-232 port
+# port = '/dev/ttyUSB0' # primary USB-serial port
 port = '/dev/ttyTHS0'  # primary 1.8V UART on the Jetson
 baudrate = 9600
-#baudrate = 15200
+# baudrate = 15200
 
 """ Video Settings """
-#cap = cv2.VideoCapture(0)  # stream from webcam
-#cap = cv2.VideoCapture('video_in/mini-field.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+# cap = cv2.VideoCapture(0)  # stream from webcam
+# cap = cv2.VideoCapture('video_in/mini-field.mp4') https://goo.gl/photos/ZD4pditqMNt9r3Vr
 cap = cv2.VideoCapture('video_in/12ft.mp4')
-#cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
+# cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
 
 
-
 """ PROCESS COMMAND LINE FLAGS """
+
 i = 1
 while i < len(sys.argv):
     flag = sys.argv[i]
@@ -121,21 +113,7 @@ except:
     ser = None
     print "Couldn't open serial port!"
 
-<<<<<<< HEAD
 
-""" Video Input Settings """
-cap = cv2.VideoCapture(0)  # stream from webcam
-#cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
-#cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
-#cap = cv2.VideoCapture('mini-field.mp4')
-# Video options
-show_video = False
-save_video = False
-
-
-
-=======
->>>>>>> master
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
@@ -164,8 +142,8 @@ def find_best_match(frame):
     This is done by thresholding the image, extracting contours, approximating
     the contours as polygons. The polygonal contours are then filtered by
     vertice count and minimum area. Finally, the similarity of a contour is
-    determined by the matchShapes() function, and the best_match variable is set
-    if the similarity is lower than the prior similarity value.
+    determined by the matchShapes() function, and the best_match variable is 
+    set if the similarity is lower than the prior similarity value.
 
     This function should not modify anything outside of its scope.
     """
@@ -175,13 +153,13 @@ def find_best_match(frame):
     contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
     # Approximate outlines into polygons
-    best_match = None # Variable to store best matching contour for U shape
-    best_match_similarity = 1000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
+    best_match = None  # Variable to store best matching contour for U shape
+    best_match_similarity = 1000  # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
     for contour in contours:
         approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
         # Filter through contours to detect a goal
         if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
-            cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
+            cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
             # test to see if this contour is the best match
             if check_match(approx):
                 best_match = approx
@@ -213,7 +191,7 @@ def check_match(contour):
         point_b = contour[(i + start_index + 1) % 8][0]
         dist = (point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2
 
-        if i > 0 and (dist < prev_dist) != should_be_less[i-1]:
+        if i > 0 and (dist < prev_dist) != should_be_less[i - 1]:
             return False
 
         prev_dist = dist
@@ -222,8 +200,9 @@ def check_match(contour):
 
 def get_start_index(contour):
     """
-    Returns the index of the point that's furthest to the bottom and the left
-    (furthest from the origin). This point is referred to as the start point
+    Returns the index of the point that's furthest to the bottom and the left.
+    This point is the furthest from the origin. This point is referred to as
+    the start point
     and the indices of other points will be made relative to it.
     """
     biggest_dist = -1
@@ -239,6 +218,7 @@ def get_start_index(contour):
     return start_index
 
 def get_nth_point(contour, n, start_index=-1):
+
     """
     Returns the nth point in a contour relative to the start index. If no start
     index is provided, it is calculated using the get_start_index function.
@@ -251,20 +231,20 @@ def get_nth_point(contour, n, start_index=-1):
 def draw_goal(frame, target):
     """ Given the target controur, draws the extrapolated goal shape. """
 
-    x,y,w,h = cv2.boundingRect(target)  # find a non-rotated bounding rectangle
-    #cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), 2)  # draw bounding rectangle in green
+    x, y, w, h = cv2.boundingRect(target)  # find a non-rotated bounding rectangle
+    # cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), 2)  # draw bounding rectangle in green
 
     # Draw goal contour based on the bounding box
-    tape_x = int(w/10)
-    tape_y = int(h/7)
-    goal_x = x+tape_x
-    goal_y = y-h+tape_y
-    goal_w = int(w*4/5)
-    goal_h = int(h*12/7)
+    tape_x = int(w / 10)
+    tape_y = int(h / 7)
+    goal_x = x + tape_x
+    goal_y = y - h + tape_y
+    goal_w = int(w * 4 / 5)
+    goal_h = int(h * 12 / 7)
     # circle parameters
-    radius = int(goal_w/2)
-    center = (goal_x+radius, goal_y+radius)
-    cv2.rectangle(frame, (goal_x, goal_y+radius), (goal_x+goal_w, goal_y+goal_h), (255, 0, 255), -1)  # draw the goal bounding box in purple
+    radius = int(goal_w / 2)
+    center = (goal_x + radius, goal_y + radius)
+    cv2.rectangle(frame, (goal_x, goal_y + radius), (goal_x + goal_w, goal_y + goal_h), (255, 0, 255), -1)  # draw the goal bounding box in purple
     cv2.circle(frame, center, radius, (255, 0, 255), -1)
 
 
@@ -276,7 +256,7 @@ def target_center(target):
 
 def image_center():
     """ Returns the center coordinate of the image """
-    return int(frame_width/2), int(frame_height/2)
+    return int(frame_width / 2), int(frame_height / 2)
 
 
 def draw_base_HUD(frame):
@@ -284,9 +264,9 @@ def draw_base_HUD(frame):
     center coordinate. """
     center_x, center_y = image_center()
 
-    cv2.line(frame, (center_x, 0), (center_x, frame_height), (0, 0, 0), 2) # Vertical line
-    cv2.line(frame, (0, center_y), (frame_width, center_y), (0, 0, 0), 2) # Horizontal line
-    cv2.circle(frame, (center_x, center_y), 25, (0, 0, 0), 2) # center circle
+    cv2.line(frame, (center_x, 0), (center_x, frame_height), (0, 0, 0), 2)  # Vertical line
+    cv2.line(frame, (0, center_y), (frame_width, center_y), (0, 0, 0), 2)  # Horizontal line
+    cv2.circle(frame, (center_x, center_y), 25, (0, 0, 0), 2)  # center circle
     return center_x, center_y
 
 
@@ -294,17 +274,13 @@ def draw_targeting_HUD(frame, target):
     """ Draws the target, goal (via the draw_goal() function),
     displacement vector, and a text box showing the target's displacement. """
 
-    cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
+    cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1)  # Rectangle where text will be displayed
     if target is None:
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
-        #pause = True
+        # pause = True
     else:  # draw the best match and its bounding box
-<<<<<<< HEAD
-        cv2.drawContours(frame, [target], 0, (255, 255, 255), 3) # Draw target in cyan
 
-=======
-        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
->>>>>>> master
+        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3)  # Draw target in cyan
         draw_goal(frame, target)
 
         center_x, center_y = image_center()
@@ -337,7 +313,7 @@ def send_data(*data):
     -210\t42\n
 
     """
-    if ser != None:
+    if ser is not None:
         string = ""
         for i in range(0, len(data)):
             string += str(data[i]) + "\t"
@@ -346,26 +322,27 @@ def send_data(*data):
         #print string,  # print without an extra linefeed
         ser.write(string)
 
+
 def send_video(frame):
-	try:
-		data = "" # the data we are going to send
-		counter = 120 # size of each packet
-		sent = 0 # for debugging
-		s.send(chr(0)) # Send a null byte to mark a new frame
-		for i in xrange(120): #height
-			for j in xrange(160): #width
-				if counter == 1: # if we need to send
-					sent+=1 # for debugging
-					s.send(data+chr(frame[i,j]))#send the data 
-					data = ""
-					counter = 120
-						
-				else:
-					data+=chr(frame[i][j])
-					counter-=1
-	except:
-		print "Error In Send Video"
-		pass
+    try:
+        data = "" # the data we are going to send
+        counter = 120 # size of each packet
+        sent = 0 # for debugging
+        s.send(chr(0)) # Send a null byte to mark a new frame
+        for i in xrange(120): #height
+            for j in xrange(160): #width
+                if counter == 1: # if we need to send
+                    sent+=1 # for debugging
+                    s.send(data+chr(frame[i,j]))#send the data 
+                    data = ""
+                    counter = 120
+                        
+                else:
+                    data+=chr(frame[i][j])
+                    counter-=1
+    except:
+        print "Error In Send Video"
+        pass
 
 """ VIDEO PROCESSING LOOP """
 while(cap.isOpened()):
@@ -373,24 +350,21 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     start = time.time()
     if ret:
-	try:
-		if streaming and frame_until_stream == 0:
-	                send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
-	                frame_until_stream = 2
-	        else: frame_until_stream -=1
-	except:
-		print "Error in video Loop"
-		pass
+    try:
+        if streaming and frame_until_stream == 0:
+                    send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
+                    frame_until_stream = 2
+            else: frame_until_stream -=1
+    except:
+        print "Error in video Loop"
+        pass
 
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
-<<<<<<< HEAD
-		
-=======
         draw_base_HUD(frame)
         end = time.time()
         draw_fps(frame, 1.0 / (end - start))
->>>>>>> master
+
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
