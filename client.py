@@ -30,18 +30,22 @@ def main():
 
 #try:
 	while 1:
+		print "In loop"
 		#while s.recv(1) != chr(0): pass # null byte marks a new frame
 		
 		data = ""
 
 		for i in xrange(160):
-			incoming_packet = s.recv(BUFFER_SIZE)
+
+			incoming_packet = s.recv(120)
+			print len(incoming_packet)
 			if incoming_packet != chr(0): data += incoming_packet
 			else: 
 				data = None
 				break
 		if data != None:
 			frame = decode_data(data)
+			print frame
 			#frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))
 			#import ipdb; ipdb.set_trace()
 			if frame != None:
