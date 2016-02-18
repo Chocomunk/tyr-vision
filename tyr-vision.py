@@ -19,8 +19,8 @@ import socket
 from threading import Thread
 
 
-IP = "192.168.0.101"
-PORT = 5005
+IP = "10.0.8.202"
+PORT = 56541
 
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -30,8 +30,6 @@ s=s.accept()[0]
 
 frame_until_stream = 2
 
-#except:
-#	print "Sockets aren't working"
 #	s=None
 streaming = True
 
@@ -193,33 +191,39 @@ def draw_targeting_HUD(frame, target):
             ser.write(text)
 
 def send_video(frame):
-	data = "" # the data we are going to send
-	counter = 120 # size of each packet
-	sent = 0 # for debugging
-	s.send(chr(0)) # Send a null byte to mark a new frame
-	for i in xrange(120): #height
-		for j in xrange(160): #width
-			if counter == 1: # if we need to send
-				sent+=1 # for debugging
-				s.send(data+chr(frame[i,j]))#send the data 
-				data = ""
-				counter = 120
+	try:
+		data = "" # the data we are going to send
+		counter = 120 # size of each packet
+		sent = 0 # for debugging
+		s.send(chr(0)) # Send a null byte to mark a new frame
+		for i in xrange(120): #height
+			for j in xrange(160): #width
+				if counter == 1: # if we need to send
+					sent+=1 # for debugging
+					s.send(data+chr(frame[i,j]))#send the data 
+					data = ""
+					counter = 120
 						
-			else:
-				data+=chr(frame[i][j])
-				counter-=1
-
+				else:
+					data+=chr(frame[i][j])
+					counter-=1
+	except:
+		print "Error In Send Video"
+		pass
 
 """ BEGIN video processing loop """
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
     if ret:
-	if streaming and frame_until_stream == 0:
-                send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
-                frame_until_stream = 2
-        else: frame_until_stream -=1
-	
+	try:
+		if streaming and frame_until_stream == 0:
+	                send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
+	                frame_until_stream = 2
+	        else: frame_until_stream -=1
+	except:
+		print "Error in video Loop"
+		pass
 
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_base_HUD(frame)
