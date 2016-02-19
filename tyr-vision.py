@@ -33,19 +33,20 @@ from threading import Thread
 Video Streaming
 """
 
+try:
+    IP = "10.0.8.202"
+    PORT = 56541
 
-IP = "10.0.8.202"
-PORT = 56541
 
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((IP, PORT))
+    s.listen(1)
+    s = s.accept()[0]
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((IP, PORT))
-s.listen(1)
-s = s.accept()[0]
+    frame_until_stream = 2
 
-frame_until_stream = 2
-
-streaming = True
+    streaming = True
+except: streaming = False
 
 
 """ DEFAULT SETTINGS """
