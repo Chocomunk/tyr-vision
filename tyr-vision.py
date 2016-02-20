@@ -319,8 +319,9 @@ while(cap.isOpened()):
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
-            if save_video:
-                video_writer.write(frame)
+
+        if save_video:
+            video_writer.write(frame)
 
         k = cv2.waitKey(1)  # wait 1ms for a keystroke
         if k == ord('q') or k == 27:  # exit with the 'q' or 'esc' key
