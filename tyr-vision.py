@@ -285,7 +285,7 @@ def draw_targeting_HUD(frame, target):
         #_, _, width, height = cv2.boundingRect(target) # Standard
         _, (width, height), _ = cv2.minAreaRect(target) # Rotated
         # Send displacement data over serial
-        send_data(displacement_x, displacement_y, width, height)
+        send_data(displacement_x, displacement_y, int(width), int(height))
 
 
 def draw_fps(frame, fps):
@@ -309,7 +309,7 @@ def send_data(*data):
         for i in range(0, len(data)):
             string += str(data[i]) + "\t"
         string = string[:-2] # Remove trailing ', '
-        string += '\n'  # linefeed at end of line
+        string += '\r\n'  # linefeed at end of line
         #print string,  # print without an extra linefeed
         ser.write(string)
 
