@@ -281,8 +281,11 @@ def draw_targeting_HUD(frame, target):
         # Overlay the displacement values as text
         text = "<%d, %d>" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
+        # Get bounding box dimensions
+        #_, _, width, height = cv2.boundingRect(target) # Standard
+        _, (width, height), _ = cv2.minAreaRect(target) # Rotated
         # Send displacement data over serial
-        send_data(displacement_x, displacement_y)
+        send_data(displacement_x, displacement_y, width, height)
 
 
 def draw_fps(frame, fps):
