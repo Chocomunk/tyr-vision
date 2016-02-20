@@ -107,6 +107,7 @@ if save_video:
     folder = 'video_out/'  # eventually replace this with the SD card folder
     filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
     path = folder + filename
+    print "Saving video to: %s" % path
     video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
 
 
@@ -149,6 +150,7 @@ def find_best_match(frame):
 
     return best_match
 
+
 def check_match(contour):
     """
     Checks if the contour is the U shape by first finding the point that's
@@ -181,6 +183,7 @@ def check_match(contour):
 
     return True
 
+
 def get_start_index(contour):
     """
     Returns the index of the point that's furthest to the bottom and the left
@@ -199,6 +202,7 @@ def get_start_index(contour):
 
     return start_index
 
+
 def get_nth_point(contour, n, start_index=-1):
     """
     Returns the nth point in a contour relative to the start index. If no start
@@ -208,6 +212,7 @@ def get_nth_point(contour, n, start_index=-1):
         start_index = get_start_index(contour)
 
     return contour[(start_index + n) % len(contour)][0]
+
 
 def draw_goal(frame, target):
     """ Given the target controur, draws the extrapolated goal shape. """
@@ -234,6 +239,7 @@ def target_center(target):
     left_pt = get_nth_point(target, 6)
     right_pt = get_nth_point(target, 1)
     return int((left_pt[0] + right_pt[0]) / 2), int((left_pt[1] + right_pt[1]) / 2)
+
 
 def image_center():
     """ Returns the center coordinate of the image """
@@ -301,6 +307,7 @@ def send_data(*data):
         string += '\n'  # linefeed at end of line
         #print string,  # print without an extra linefeed
         ser.write(string)
+
 
 
 """ VIDEO PROCESSING LOOP """
