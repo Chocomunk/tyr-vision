@@ -105,8 +105,10 @@ print "Video resolution: %sx%s" % (frame_width, frame_height)
 # Variables needed for saving the video
 if save_video:
     folder = 'video_out/'  # eventually replace this with the SD card folder
-    filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
-    path = folder + filename
+    filetype = 'avi'
+    # TODO: also include branch name and/or commit ID
+    filename = time.strftime("%Y-%m-%d_%H-%M-%S")
+    path = folder + filename + '.' + filetype
     print "Saving video to: %s" % path
     video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
 
