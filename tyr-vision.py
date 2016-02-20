@@ -323,7 +323,7 @@ while(cap.isOpened()):
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
-        fps = 1.0 / (cur_time - prev_time)
+        fps = int(1.0 / (cur_time - prev_time))
         print "FPS: %s" % fps
         draw_fps(frame, fps)
 
