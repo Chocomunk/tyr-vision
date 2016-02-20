@@ -68,7 +68,7 @@ while i < len(sys.argv):
                 print "Opened webcam at: /dev/video%s" % sys.argv[i]
             except:
                 # if it's not an integer, it's a filepath for a video
-                cap = cv2.VideoCapture(sys.argv[i])
+                cap = cv2.VideoCapture("video_in/" + sys.argv[i])
                 print "Opened video file at: %s" % sys.argv[i]
         elif flag == "--port":
             i += 1
