@@ -323,7 +323,9 @@ while(cap.isOpened()):
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
-        draw_fps(frame, 1.0 / (cur_time - prev_time))
+        fps = 1.0 / (cur_time - prev_time)
+        print "FPS: %s" % fps
+        draw_fps(frame, fps)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
