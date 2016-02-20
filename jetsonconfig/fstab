@@ -1,0 +1,4 @@
+# UNCONFIGURED FSTAB FOR BASE SYSTEM
+
+# mount SD card to /mnt/sdcard
+/dev/mmcblk1p1 /mnt/sdcard vfat         umask=000,uid=1000,gid=27 0 0

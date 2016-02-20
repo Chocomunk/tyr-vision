@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# This file should be /etc/rc.local
+#
+
+#cd /mnt/sdcard/tyr-vision
+cd /home/ubuntu/tyr-vision/
+echo "Running rc.local from: `pwd` at time `date`"
+echo "Running rc.local from: `pwd` at time `date`" >> /mnt/sdcard/rclocal.log
+# MAKE SURE PROGRAM IS RUN IN THE BACKGROUND (use & at end of line)
+# First try to use the webcam; if that exits prematurely then use the pre-recorded video
+python /home/ubuntu/tyr-vision/tyr-vision.py --device 0 -S & 
+python /home/ubuntu/tyr-vision/tyr-vision.py --device 12ft.mp4 -S &
