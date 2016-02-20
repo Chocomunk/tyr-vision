@@ -324,7 +324,7 @@ while(cap.isOpened()):
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
         fps = int(1.0 / (cur_time - prev_time))
-        print "FPS: %s" % fps
+        #print "FPS: %s" % fps
         draw_fps(frame, fps)
 
         if show_video:
