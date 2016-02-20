@@ -42,7 +42,8 @@ cap = cv2.VideoCapture('video_in/12ft.mp4')
 #cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
-codec = cv2.cv.CV_FOURCC("H", "2", "6", "4")
+codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
+#codec = cv2.cv.CV_FOURCC('H', '2', '6', '4')
 
 
 
