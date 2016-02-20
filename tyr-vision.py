@@ -42,6 +42,7 @@ cap = cv2.VideoCapture('video_in/12ft.mp4')
 #cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
+codec = cv2.cv.CV_FOURCC("H", "2", "6", "4")
 
 
 
@@ -75,6 +76,9 @@ while i < len(sys.argv):
         elif flag == "--baudrate":
             i += 1
             baudrate = sys.argv[i]
+        elif flag == "--codec":
+            i += 1
+            codec = cv2.cv.CV_FOURCC(*list(sys.argv[i]))
     elif flag[0] == "-":
         if "s" in flag:
             show_video = True
@@ -102,7 +106,7 @@ if save_video:
     folder = 'video_out/'  # eventually replace this with the SD card folder
     filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
     path = folder + filename
-    video_writer = cv2.VideoWriter(path, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (frame_width, frame_height))
+    video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
 
 
 """ Reference Target Contour """
@@ -299,16 +303,19 @@ def send_data(*data):
 
 
 """ VIDEO PROCESSING LOOP """
+prev_time = time.time()
+cur_time = time.time()
+
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
-    start = time.time()
+    prev_time = cur_time
+    cur_time = time.time()
     if ret:
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
-        end = time.time()
-        draw_fps(frame, 1.0 / (end - start))
+        draw_fps(frame, 1.0 / (cur_time - prev_time))
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
