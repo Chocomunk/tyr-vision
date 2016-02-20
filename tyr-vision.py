@@ -148,7 +148,11 @@ def find_best_match(frame):
             cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
             # test to see if this contour is the best match
             if check_match(approx):
-                best_match = approx
+                cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
+                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
+                if similarity < best_match_similarity:
+                    best_match = approx
+                    best_match_similarity = similarity
 
     return best_match
 
@@ -266,6 +270,7 @@ def draw_targeting_HUD(frame, target):
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
     if target is None:
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
+        send_data("No target")
         #pause = True
     else:  # draw the best match and its bounding box
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
