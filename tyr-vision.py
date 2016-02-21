@@ -22,7 +22,7 @@ U-SHAPE REFERENCE
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
-import serial
+#import serial
 import sys
 import time
 import socket
@@ -33,20 +33,20 @@ from threading import Thread
 Video Streaming
 """
 
-try:
-    IP = "10.0.8.202"
-    PORT = 56541
+#try:
+IP = "localhost"
+PORT = 56541
 
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((IP, PORT))
-    s.listen(1)
-    s = s.accept()[0]
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((IP, PORT))
+s.listen(1)
+s = s.accept()[0]
 
-    frame_until_stream = 2
+frame_until_stream = 2
 
-    streaming = True
-except: streaming = False
+streaming = True
+#except: streaming = False
 
 
 """ DEFAULT SETTINGS """
@@ -58,9 +58,9 @@ baudrate = 9600
 # baudrate = 15200
 
 """ Video Settings """
-# cap = cv2.VideoCapture(0)  # stream from webcam
+cap = cv2.VideoCapture(0)  # stream from webcam
 # cap = cv2.VideoCapture('video_in/mini-field.mp4') https://goo.gl/photos/ZD4pditqMNt9r3Vr
-cap = cv2.VideoCapture('video_in/12ft.mp4')
+# cap = cv2.VideoCapture('video_in/12ft.mp4')
 # cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
@@ -353,29 +353,27 @@ def send_data(*data):
 
 def send_video(frame):
     try:
-        all_parts = {}
-        data = "" # the data we are going to send
-        counter = 120 # size of each packet
-        sent = 0 # for debugging
-        s.send(chr(0)) # Send a null byte to mark a new frame
-        for i in xrange(120): #height
+        data = ""  # the data we are going to send
+        counter = 120  # size of each packet
+        sent = 0  # for debugging
+        s.send(chr(0))  # Send a null byte to mark a new frame
+        for i in xrange(120):  #height
             for j in xrange(160): #width
                 if counter == 1: # if we need to send
 
                     sent+=1 # for debugging
-                    s.send(data+chr(frame[i,j]))#send the data
-                    all_parts[sent] = data+chr(frame[i,j])
+                    s.send(chr(sent)+data+chr(frame[i,j]))#send the data
                     data = ""
                     counter = 120
 
                 else:
                     data+=chr(frame[i][j])
                     counter-=1
-        lost = s.recv(1024)
+        # lost = s.recv(1024)
 
-        for i in xrange(len(lost)):
-            num_lost = ord(lost[i])
-            s.send(chr(num_lost)+all_parts[num_lost])
+        # for i in xrange(len(lost)):
+        #     num_lost = ord(lost[i])
+        #     s.send(chr(num_lost)+all_parts[num_lost])
     except:
         print "Error In Send Video"
         pass
