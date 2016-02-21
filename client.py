@@ -39,19 +39,32 @@ def main():
 		#while s.recv(1) != chr(0): pass # null byte marks a new frame
 		
 		data = {}
-
+        not_recived = []
 		for i in xrange(160):
 
 			packet = s.recv(121)
 			frame_number = ord(packet[0])
 			incoming_packet = packet[1:]
 			if len(incoming_packet) != 120: 
-				incoming_packet+=last_frame[((i*120)+len(incoming_packet)):((i*120)+(120))]
+				not_recived.append(frame_number)
+                #incoming_packet+=last_frame[((i*120)+len(incoming_packet)):((i*120)+(120))]
 			print len(incoming_packet)
 			if incoming_packet != chr(0): data[frame_number] = incoming_packet
 			else: 
 				data = None
 				break
+        for i in xrange(160):
+            if i not in data: not_recived.append(i)
+
+        for i in not_recived:
+            s.send(''.join([chr(i) for i in not_recived]))
+        for i in not_recived:
+            packet = s.recv(121)
+            pix = packet[1:]
+            if len(pix) != 120:
+                data[ord(packet[0])] = pix + chr(0) * (120-len(pix))
+            else: data[ord(packet[0])] = pix
+
 		if data != None:
 			packets = ""
 			for i in xrange(160):
@@ -59,7 +72,7 @@ def main():
 					packets+=data[i]
 				except:
 					packets+=last_frame[i*120:(i+1)*120]
-					120*chr(0)
+					
 			frame = decode_data(packets)
 			print frame
 			#frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))

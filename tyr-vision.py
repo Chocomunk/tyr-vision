@@ -353,6 +353,7 @@ def send_data(*data):
 
 def send_video(frame):
     try:
+        all_parts = {}
         data = "" # the data we are going to send
         counter = 120 # size of each packet
         sent = 0 # for debugging
@@ -360,14 +361,21 @@ def send_video(frame):
         for i in xrange(120): #height
             for j in xrange(160): #width
                 if counter == 1: # if we need to send
+
                     sent+=1 # for debugging
                     s.send(data+chr(frame[i,j]))#send the data
+                    all_parts[sent] = data+chr(frame[i,j])
                     data = ""
                     counter = 120
 
                 else:
                     data+=chr(frame[i][j])
                     counter-=1
+        lost = s.recv(1024)
+
+        for i in xrange(len(lost)):
+            num_lost = ord(lost[i])
+            s.send(chr(num_lost)+all_parts[num_lost])
     except:
         print "Error In Send Video"
         pass
