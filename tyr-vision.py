@@ -92,6 +92,7 @@ while i < len(sys.argv):
 # Open serial interface, if available
 try:
     ser = serial.Serial(port, baudrate)
+    print "Opened serial port %s at %s" % (port, baudrate)
     ser.write("\n\nBEGIN TYR-VISION\n\n")
 except:
     ser = None
