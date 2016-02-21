@@ -64,6 +64,8 @@ cap = cv2.VideoCapture('video_in/12ft.mp4')
 # cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
+codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
+#codec = cv2.cv.CV_FOURCC('H', '2', '6', '4')
 
 
 """ PROCESS COMMAND LINE FLAGS """
@@ -89,7 +91,7 @@ while i < len(sys.argv):
                 print "Opened webcam at: /dev/video%s" % sys.argv[i]
             except:
                 # if it's not an integer, it's a filepath for a video
-                cap = cv2.VideoCapture(sys.argv[i])
+                cap = cv2.VideoCapture("video_in/" + sys.argv[i])
                 print "Opened video file at: %s" % sys.argv[i]
         elif flag == "--port":
             i += 1
@@ -97,6 +99,9 @@ while i < len(sys.argv):
         elif flag == "--baudrate":
             i += 1
             baudrate = sys.argv[i]
+        elif flag == "--codec":
+            i += 1
+            codec = cv2.cv.CV_FOURCC(*list(sys.argv[i]))
     elif flag[0] == "-":
         if "s" in flag:
             show_video = True
@@ -109,6 +114,7 @@ while i < len(sys.argv):
 # Open serial interface, if available
 try:
     ser = serial.Serial(port, baudrate)
+    print "Opened serial port %s at %s" % (port, baudrate)
     ser.write("\n\nBEGIN TYR-VISION\n\n")
 except:
     ser = None
@@ -118,14 +124,23 @@ except:
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+if frame_width == frame_height == 0:
+    print "ERROR: resolution is 0x0; falling back to 12ft.mp4"
+    cap = cv2.VideoCapture('video_in/12ft.mp4')
+    frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+
 print "Video resolution: %sx%s" % (frame_width, frame_height)
 
 # Variables needed for saving the video
 if save_video:
     folder = 'video_out/'  # eventually replace this with the SD card folder
-    filename = time.strftime("%Y-%m-%d_%H:%M:%S.avi")
-    path = folder + filename
-    video_writer = cv2.VideoWriter(path, cv2.cv.CV_FOURCC("M", "J", "P", "G"), 15, (frame_width, frame_height))
+    filetype = 'avi'
+    # TODO: also include branch name and/or commit ID
+    filename = time.strftime("%Y-%m-%d_%H-%M-%S")
+    path = folder + filename + '.' + filetype
+    print "Saving video to: %s" % path
+    video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
 
 
 """ Reference Target Contour """
@@ -163,9 +178,14 @@ def find_best_match(frame):
             cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
             # test to see if this contour is the best match
             if check_match(approx):
-                best_match = approx
+                cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
+                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
+                if similarity < best_match_similarity:
+                    best_match = approx
+                    best_match_similarity = similarity
 
     return best_match
+
 
 def check_match(contour):
     """
@@ -199,6 +219,7 @@ def check_match(contour):
 
     return True
 
+
 def get_start_index(contour):
     """
     Returns the index of the point that's furthest to the bottom and the left.
@@ -218,6 +239,7 @@ def get_start_index(contour):
 
     return start_index
 
+
 def get_nth_point(contour, n, start_index=-1):
 
     """
@@ -228,6 +250,7 @@ def get_nth_point(contour, n, start_index=-1):
         start_index = get_start_index(contour)
 
     return contour[(start_index + n) % len(contour)][0]
+
 
 def draw_goal(frame, target):
     """ Given the target controur, draws the extrapolated goal shape. """
@@ -255,6 +278,7 @@ def target_center(target):
     right_pt = get_nth_point(target, 1)
     return int((left_pt[0] + right_pt[0]) / 2), int((left_pt[1] + right_pt[1]) / 2)
 
+
 def image_center():
     """ Returns the center coordinate of the image """
     return int(frame_width / 2), int(frame_height / 2)
@@ -278,7 +302,8 @@ def draw_targeting_HUD(frame, target):
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1)  # Rectangle where text will be displayed
     if target is None:
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
-        # pause = True
+        send_data("No target")
+        #pause = True
     else:  # draw the best match and its bounding box
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
         draw_goal(frame, target)
@@ -293,8 +318,11 @@ def draw_targeting_HUD(frame, target):
         # Overlay the displacement values as text
         text = "<%d, %d>" % (displacement_x, displacement_y)
         cv2.putText(frame, "%s" % text, (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
+        # Get bounding box dimensions
+        #_, _, width, height = cv2.boundingRect(target) # Standard
+        _, (width, height), _ = cv2.minAreaRect(target) # Rotated
         # Send displacement data over serial
-        send_data(displacement_x, displacement_y)
+        send_data(displacement_x, displacement_y, int(width), int(height))
 
 
 def draw_fps(frame, fps):
@@ -318,7 +346,7 @@ def send_data(*data):
         for i in range(0, len(data)):
             string += str(data[i]) + "\t"
         string = string[:-2] # Remove trailing ', '
-        string += '\n'  # linefeed at end of line
+        string += '\r\n'  # linefeed at end of line
         #print string,  # print without an extra linefeed
         ser.write(string)
 
@@ -344,11 +372,16 @@ def send_video(frame):
         print "Error In Send Video"
         pass
 
+
 """ VIDEO PROCESSING LOOP """
+prev_time = time.time()
+cur_time = time.time()
+
 while(cap.isOpened()):
     pause = False
     ret, frame = cap.read()  # read a frame
-    start = time.time()
+    prev_time = cur_time
+    cur_time = time.time()
     if ret:
         try:
             if streaming and frame_until_stream == 0:
@@ -362,13 +395,15 @@ while(cap.isOpened()):
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
-        end = time.time()
-        draw_fps(frame, 1.0 / (end - start))
+        fps = int(1.0 / (cur_time - prev_time))
+        #print "FPS: %s" % fps
+        draw_fps(frame, fps)
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
-            if save_video:
-                video_writer.write(frame)
+
+        if save_video:
+            video_writer.write(frame)
 
         k = cv2.waitKey(1)  # wait 1ms for a keystroke
         if k == ord('q') or k == 27:  # exit with the 'q' or 'esc' key
