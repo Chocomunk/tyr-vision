@@ -115,17 +115,6 @@ except:
     print "Couldn't open serial port!"
 
 
-""" Video Input Settings """
-cap = cv2.VideoCapture(0)  # stream from webcam
-#cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
-#cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
-#cap = cv2.VideoCapture('mini-field.mp4')
-# Video options
-show_video = False
-save_video = False
-
-
-
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
