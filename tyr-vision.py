@@ -115,6 +115,17 @@ except:
     print "Couldn't open serial port!"
 
 
+""" Video Input Settings """
+cap = cv2.VideoCapture(0)  # stream from webcam
+#cap = cv2.VideoCapture('close-up-mini-U.mp4')  # https://goo.gl/photos/ECz2rhyqocxpJYQx9
+#cap = cv2.VideoCapture('12Feet.mp4')  # https://goo.gl/photos/ZD4pditqMNt9r3Vr6
+#cap = cv2.VideoCapture('mini-field.mp4')
+# Video options
+show_video = False
+save_video = False
+
+
+
 # Video dimensions
 frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
@@ -143,7 +154,7 @@ def find_best_match(frame):
     This is done by thresholding the image, extracting contours, approximating
     the contours as polygons. The polygonal contours are then filtered by
     vertice count and minimum area. Finally, the similarity of a contour is
-    determined by the matchShapes() function, and the best_match variable is 
+    determined by the matchShapes() function, and the best_match variable is
     set if the similarity is lower than the prior similarity value.
 
     This function should not modify anything outside of its scope.
@@ -280,8 +291,7 @@ def draw_targeting_HUD(frame, target):
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
         # pause = True
     else:  # draw the best match and its bounding box
-
-        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3)  # Draw target in cyan
+        cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
         draw_goal(frame, target)
 
         center_x, center_y = image_center()
@@ -334,10 +344,10 @@ def send_video(frame):
             for j in xrange(160): #width
                 if counter == 1: # if we need to send
                     sent+=1 # for debugging
-                    s.send(data+chr(frame[i,j]))#send the data 
+                    s.send(data+chr(frame[i,j]))#send the data
                     data = ""
                     counter = 120
-                        
+
                 else:
                     data+=chr(frame[i][j])
                     counter-=1
@@ -351,21 +361,20 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # read a frame
     start = time.time()
     if ret:
-    try:
-        if streaming and frame_until_stream == 0:
-                    send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
-                    frame_until_stream = 2
+        try:
+            if streaming and frame_until_stream == 0:
+                send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
+                frame_until_stream = 2
             else: frame_until_stream -=1
-    except:
-        print "Error in video Loop"
-        pass
+        except:
+            print "Error in video streaming Loop"
+            pass
 
         best_match = find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
         end = time.time()
         draw_fps(frame, 1.0 / (end - start))
-
 
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
