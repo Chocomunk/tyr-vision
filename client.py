@@ -1,9 +1,11 @@
 import socket
 import cv2
 import numpy
+from threading import Thread
 
-SERVER_IP = "localhost"
+SERVER_IP = "10.0.8.202"
 SERVER_PORT = 56541
+DATA_PORT = 56541
 save_video = False
 
 HEIGHT = 120
@@ -13,7 +15,13 @@ BUFFER_SIZE = 120
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((SERVER_IP, SERVER_PORT))
 
-last_frame = chr(0) * HEIGHT*WIDTH
+data = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+data.connect((SERVER_IP, DATA_PORT))
+
+last_frame = chr(0) * HEIGHT * WIDTH
+
+HUD_TEXT = ""
+
 
 def decode_data(data):
     pixels = list(data)
@@ -30,8 +38,14 @@ def decode_data(data):
     return frame
 
 
-def main():
+def update_hud_text():
+    while 1:
+        global HUD_TEXT
+        HUD_TEXT = data.recv(1024)
 
+
+def main():
+    Thread(target=update_hud_text).start()
     # try:
     while 1:
         while s.recv(1) != chr(0):
@@ -64,6 +78,10 @@ def main():
             # frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))
             # import ipdb; ipdb.set_trace()
             if frame is not None:
+                y0, dy = 50, 4
+                for i, line in enumerate(HUD_TEXT.split("\n")):
+                    y = y0 + i * dy
+                    cv2.putText(frame, line, (50, y), cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
                 cv2.imshow('tyr-vision', cv2.resize(frame, (1280, 720)))  # show the image output on-screen
                 cv2.waitKey(50)
                 if save_video:
