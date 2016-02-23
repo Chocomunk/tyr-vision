@@ -3,21 +3,45 @@ import cv2
 import numpy
 from threading import Thread
 
+
 SERVER_IP = "10.0.8.202"
 SERVER_PORT = 56541
 DATA_PORT = 56541
+VIDEO_START_STOP_PORT = 56543
+
 save_video = False
 
 HEIGHT = 120
 WIDTH = 160
 BUFFER_SIZE = 120
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((SERVER_IP, SERVER_PORT))
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((SERVER_IP, SERVER_PORT))
+except:
+    print "Video Streaming Socket Could not be made"
 
-data = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-data.connect((SERVER_IP, DATA_PORT))
 
+try:
+    data = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    data.connect((SERVER_IP, DATA_PORT))
+except:
+    print "data socket could not be make"
+
+try:
+    record_socket = socket.socket.(socket.AF_INET, socket.SOCK_STREAM))
+    record_socket.connect((SERVER_IP, VIDEO_START_STOP_PORT))
+
+
+def startStopVideo():
+    print "If you would like to start recording Video, enter the name of the Video Here. OtherWise, do nothing"
+    vid_name = raw_input("File Name: ")
+    record_socket.send(chr(0))
+    raw_input("To stop recording Video, hit enter")
+    record_socket.send(chr(1))
+    startStopVideo()
+
+Thread(target = startStopVideo).start()
 last_frame = chr(0) * HEIGHT * WIDTH
 
 HUD_TEXT = ""
