@@ -22,7 +22,7 @@ U-SHAPE REFERENCE
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
-#import serial
+import serial
 import sys
 import time
 import socket
@@ -32,21 +32,17 @@ from threading import Thread
 """
 Video Streaming
 """
-
-#try:
-IP = "localhost"
-PORT = 56541
-
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((IP, PORT))
-s.listen(1)
-s = s.accept()[0]
-
-frame_until_stream = 2
-
-streaming = True
-#except: streaming = False
+try:
+    IP = "localhost"
+    PORT = 56541
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((IP, PORT))
+    s.listen(1)
+    s = s.accept()[0]
+    frame_until_stream = 2
+    streaming = True
+except:
+    streaming = False
 
 
 """ DEFAULT SETTINGS """
