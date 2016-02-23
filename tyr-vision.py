@@ -5,26 +5,21 @@
 # Team 8 Stronghold vision program
 #
 
-"""
-U-SHAPE REFERENCE
 
- -  6-5 <- 2" wide   2-1
- |  | |              | |
- |  | |              | |
- |  | |              | |
-14" | |              | |
- |  | |              | |
- |  | 4--------------3 |
- -  7------------------0 (start)
-    |------- 18"-------|
-"""
-
+""" LIBRARY IMPORTS """
 from __future__ import division  # always use floating point division
-import numpy as np
-import cv2
-import serial
 import sys
 import time
+import cv2
+import serial
+
+""" LOCAL MODULE IMPORTS """
+import videoinput
+import videooutput
+import targeting
+import videooverlay
+import serialoutput
+import networking
 
 
 """ DEFAULT SETTINGS """
@@ -111,115 +106,8 @@ if frame_width == frame_height == 0:
 print "Video resolution: %sx%s" % (frame_width, frame_height)
 
 
-""" Reference Target Contour """
-# Load reference U shape and extract its contour
-goal_img = cv2.imread('goal.png', 0)
-goal_contours, hierarchy = cv2.findContours(goal_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-goal_contour = goal_contours[0]
-
-
-def find_best_match(frame):
-    """
-    This is essentially the goal detection function.
-
-    Returns the contour that best matches the target shape.
-    This is done by thresholding the image, extracting contours, approximating
-    the contours as polygons. The polygonal contours are then filtered by
-    vertice count and minimum area. Finally, the similarity of a contour is
-    determined by the matchShapes() function, and the best_match variable is set
-    if the similarity is lower than the prior similarity value.
-
-    This function should not modify anything outside of its scope.
-    """
-    # Find outlines of white objects
-    threshold = 200
-    white = cv2.inRange(frame, (threshold, threshold, threshold), (255, 255, 255))  # threshold detection of white regions
-    contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
-
-    # Approximate outlines into polygons
-    best_match = None # Variable to store best matching contour for U shape
-    best_match_similarity = 1000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
-    for contour in contours:
-        approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
-        # Filter through contours to detect a goal
-        if cv2.contourArea(approx) > 1000 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
-            cv2.drawContours(frame, [approx], 0, (0,0,255), 2)  # draw the contour in red
-            # test to see if this contour is the best match
-            if check_match(approx):
-                cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
-                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
-                if similarity < best_match_similarity:
-                    best_match = approx
-                    best_match_similarity = similarity
-
-    return best_match
-
-
-def check_match(contour):
-    """
-    Checks if the contour is the U shape by first finding the point that's
-    furthest to the bottom right. Since the points in a contour are always
-    ordered counterclockwise, we know which point in the contour is supposed
-    to match up to each point of the U shape based on its position in the
-    contour relative to the bottom-left point. Based off of this, we check to
-    make sure that the distance between two consecutive points is correctly
-    greater-than or less-than the distance between the two preceding points.
-    If the distances change in the same pattern as they should in the U shape,
-    then we consider the contour to be a match of the U shape.
-    """
-    # Get lower right point by finding point furthest from origin (top left)
-    start_index = get_start_index(contour)
-
-    # Check if the match could be good
-    # should_be_less is a list of whether or not each distance should be less
-    # than the previous distance to be a U shape.
-    should_be_less = [True, False, False, True, True, False, False]
-    prev_dist = -1
-    for i in range(0, 8):
-        point_a = contour[(i + start_index) % 8][0]
-        point_b = contour[(i + start_index + 1) % 8][0]
-        dist = (point_a[0] - point_b[0])**2 + (point_a[1] - point_b[1])**2
-
-        if i > 0 and (dist < prev_dist) != should_be_less[i-1]:
-            return False
-
-        prev_dist = dist
-
-    return True
-
-
-def get_start_index(contour):
-    """
-    Returns the index of the point that's furthest to the bottom and the left
-    (furthest from the origin). This point is referred to as the start point
-    and the indices of other points will be made relative to it.
-    """
-    biggest_dist = -1
-    start_index = -1
-    for i in range(0, len(contour)):
-        # Technically the square of the distance, but it doesn't matter since
-        # we are only comparing the distances relative to each other
-        dist = contour[i][0][0]**2 + contour[i][0][1]**2
-        if dist > biggest_dist:
-            biggest_dist = dist
-            start_index = i
-
-    return start_index
-
-
-def get_nth_point(contour, n, start_index=-1):
-    """
-    Returns the nth point in a contour relative to the start index. If no start
-    index is provided, it is calculated using the get_start_index function.
-    """
-    if start_index == -1:
-        start_index = get_start_index(contour)
-
-    return contour[(start_index + n) % len(contour)][0]
-
-
 def draw_goal(frame, target):
-    """ Given the target controur, draws the extrapolated goal shape. """
+    """ Given the target contour, draws the extrapolated goal shape. """
 
     x,y,w,h = cv2.boundingRect(target)  # find a non-rotated bounding rectangle
     #cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), 2)  # draw bounding rectangle in green
@@ -238,22 +126,10 @@ def draw_goal(frame, target):
     cv2.circle(frame, center, radius, (255, 0, 255), -1)
 
 
-def target_center(target):
-    """ Returns the top center point of a given target contour """
-    left_pt = get_nth_point(target, 6)
-    right_pt = get_nth_point(target, 1)
-    return int((left_pt[0] + right_pt[0]) / 2), int((left_pt[1] + right_pt[1]) / 2)
-
-
-def image_center():
-    """ Returns the center coordinate of the image """
-    return int(frame_width/2), int(frame_height/2)
-
-
 def draw_base_HUD(frame):
     """ Draw base crosshairs in black on the given frame. Returns the frame's
     center coordinate. """
-    center_x, center_y = image_center()
+    center_x, center_y = targeting.image_center(frame)
 
     cv2.line(frame, (center_x, 0), (center_x, frame_height), (0, 0, 0), 2) # Vertical line
     cv2.line(frame, (0, center_y), (frame_width, center_y), (0, 0, 0), 2) # Horizontal line
@@ -274,8 +150,8 @@ def draw_targeting_HUD(frame, target):
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
         draw_goal(frame, target)
 
-        center_x, center_y = image_center()
-        target_x, target_y = target_center(target)
+        center_x, center_y = targeting.image_center(frame)
+        target_x, target_y = targeting.target_center(target)
 
         # Show the displacement as a vector in Cartesian coordinates (green)
         displacement_x = target_x - center_x # Positive when to the right of center
@@ -349,7 +225,7 @@ while(cap.isOpened()):
     prev_time = cur_time
     cur_time = time.time()
     if ret:
-        best_match = find_best_match(frame)  # perform detection before drawing the HUD
+        best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
         draw_targeting_HUD(frame, best_match)
         draw_base_HUD(frame)
         fps = int(1.0 / (cur_time - prev_time))
