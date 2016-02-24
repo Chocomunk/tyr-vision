@@ -33,20 +33,32 @@ from threading import Thread
 Video Streaming
 """
 
-try:
-    IP = "localhost"
-    PORT = 56541
+streaming = False
+frame_until_stream = 2
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((IP, PORT))
-    s.listen(1)
-    s = s.accept()[0]
+s = None
+IP = "10.0.8.202"
+PORT = 56541
 
-    frame_until_stream = 2
 
-    streaming = True
-except: streaming = False
+def try_connection():
+    """Try to create the socket connection."""
+    global streaming
+    global s
 
+    while 1:
+        if not streaming:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind((IP, PORT))
+            s.listen(1)
+            print "Listening"
+            s = s.accept()[0]
+
+            streaming = True
+#            except:
+#            streaming = False
+
+Thread(target=try_connection).start()
 
 """ DEFAULT SETTINGS """
 """ Serial Output """
@@ -64,7 +76,7 @@ cap = cv2.VideoCapture(0)  # stream from webcam
 show_video = False
 save_video = False
 codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
-#codec = cv2.cv.CV_FOURCC('H', '2', '6', '4')
+  # codec = cv2.cv.CV_FOURCC('H', '2', '6', '4')
 
 
 """ PROCESS COMMAND LINE FLAGS """
@@ -423,7 +435,7 @@ while(cap.isOpened()):
                 if cv2.waitKey(1) == ord(' '):  # resume with the spacebar
                     print "Resuming video"
                     break
-    else: # Close program when video ends
+    else:  # Close program when video ends
         break
 
 

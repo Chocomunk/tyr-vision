@@ -15,22 +15,21 @@ HEIGHT = 120
 WIDTH = 160
 BUFFER_SIZE = 120
 
-try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((SERVER_IP, SERVER_PORT))
-except:
-    print "Video Streaming Socket Could not be made"
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((SERVER_IP, SERVER_PORT)) 
 
 
-try:
-    data = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    data.connect((SERVER_IP, DATA_PORT))
-except:
-    print "data socket could not be make"
 
-try:
-    record_socket = socket.socket.(socket.AF_INET, socket.SOCK_STREAM))
-    record_socket.connect((SERVER_IP, VIDEO_START_STOP_PORT))
+# try:
+#     data = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     data.connect((SERVER_IP, DATA_PORT))
+# except:
+#     print "data socket could not be make"
+
+# try:
+#     record_socket = socket.socket.(socket.AF_INET, socket.SOCK_STREAM))
+#     record_socket.connect((SERVER_IP, VIDEO_START_STOP_PORT))
 
 
 def startStopVideo():
@@ -41,7 +40,7 @@ def startStopVideo():
     record_socket.send(chr(1))
     startStopVideo()
 
-Thread(target = startStopVideo).start()
+# Thread(target = startStopVideo).start()
 last_frame = chr(0) * HEIGHT * WIDTH
 
 HUD_TEXT = ""
@@ -69,11 +68,11 @@ def update_hud_text():
 
 
 def main():
-    Thread(target=update_hud_text).start()
+    # Thread(target=update_hud_text).start()
     # try:
     while 1:
-        while s.recv(1) != chr(0):
-            pass  # null byte marks a new frame
+    #    while s.recv(1) != chr(0):
+    #        pass  # null byte marks a new frame
 
         data = {}
         i = 0
