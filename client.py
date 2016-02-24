@@ -17,7 +17,7 @@ BUFFER_SIZE = 120
 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((SERVER_IP, SERVER_PORT)) 
+s.connect((SERVER_IP, SERVER_PORT))
 
 
 

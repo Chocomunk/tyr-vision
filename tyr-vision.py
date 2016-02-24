@@ -22,7 +22,7 @@ U-SHAPE REFERENCE
 from __future__ import division  # always use floating point division
 import numpy as np
 import cv2
-#import serial
+import serial
 import sys
 import time
 import socket
@@ -32,6 +32,7 @@ from threading import Thread
 """
 Video Streaming
 """
+
 
 streaming = False
 frame_until_stream = 2
@@ -58,6 +59,7 @@ def try_connection():
 #            except:
 #            streaming = False
 
+
 Thread(target=try_connection).start()
 
 """ DEFAULT SETTINGS """
@@ -75,6 +77,7 @@ cap = cv2.VideoCapture(0)  # stream from webcam
 # cap = cv2.VideoCapture('video_in/3ft-no-lights.mp4')
 show_video = False
 save_video = False
+video_writer = None
 codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
   # codec = cv2.cv.CV_FOURCC('H', '2', '6', '4')
 
@@ -142,16 +145,6 @@ if frame_width == frame_height == 0:
     frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
 print "Video resolution: %sx%s" % (frame_width, frame_height)
-
-# Variables needed for saving the video
-if save_video:
-    folder = 'video_out/'  # eventually replace this with the SD card folder
-    filetype = 'avi'
-    # TODO: also include branch name and/or commit ID
-    filename = time.strftime("%Y-%m-%d_%H-%M-%S")
-    path = folder + filename + '.' + filetype
-    print "Saving video to: %s" % path
-    video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
 
 
 """ Reference Target Contour """
@@ -390,7 +383,30 @@ def send_video(frame):
         pass
 
 
+def start_recording(filename = time.strftime("%Y-%m-%d_%H-%M-%S")):
+    """ Start recording video to the disk """
+    global video_writer
+    folder = 'video_out/'  # eventually replace this with the SD card folder
+    filetype = 'avi'
+    # TODO: also include branch name and/or commit ID
+    #filename = time.strftime("%Y-%m-%d_%H-%M-%S")
+    path = folder + filename + '.' + filetype
+    print "Saving video to: %s" % path
+    video_writer = cv2.VideoWriter(path, codec, 30, (frame_width, frame_height))
+
+
+def stop_recording():
+    """ Stop recording video to the disk """
+    global video_writer
+    video_writer = None
+    print "Stopped recording"
+
+
+
 """ VIDEO PROCESSING LOOP """
+if save_video:
+    start_recording()
+
 prev_time = time.time()
 cur_time = time.time()
 
@@ -419,8 +435,10 @@ while(cap.isOpened()):
         if show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
-        if save_video:
+        try:
             video_writer.write(frame)
+        except:
+            pass
 
         k = cv2.waitKey(1)  # wait 1ms for a keystroke
         if k == ord('q') or k == 27:  # exit with the 'q' or 'esc' key
@@ -431,6 +449,7 @@ while(cap.isOpened()):
 
         if pause:
             print "Pausing video"
+            stop_recording()
             while True:
                 if cv2.waitKey(1) == ord(' '):  # resume with the spacebar
                     print "Resuming video"
