@@ -8,6 +8,7 @@ import serialoutput
 import targeting
 import videoinput
 
+
 def draw_goal(frame, target):
     """ Given the target contour, draws the extrapolated goal shape. """
 
@@ -39,15 +40,15 @@ def draw_base_HUD(frame):
     return center_x, center_y
 
 
-def draw_targeting_HUD(frame, target, ser):
+# TODO: ser should not be passed to this function!
+def draw_targeting_HUD(frame, target):
     """ Draws the target, goal (via the draw_goal() function),
     displacement vector, and a text box showing the target's displacement. """
 
     cv2.rectangle(frame, (0, 0), (320, 48), (0, 0, 0), -1) # Rectangle where text will be displayed
     if target is None:
         cv2.putText(frame, "No target found", (16, 32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255))
-        serialoutput.send_data(ser, "No target")
-        #pause = True
+        serialoutput.send_data("No target")
     else:  # draw the best match and its bounding box
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
         draw_goal(frame, target)
@@ -66,7 +67,7 @@ def draw_targeting_HUD(frame, target, ser):
         #_, _, width, height = cv2.boundingRect(target) # Standard
         _, (width, height), _ = cv2.minAreaRect(target) # Rotated
         # Send displacement data over serial
-        serialoutput.send_data(ser, displacement_x, displacement_y, int(width), int(height))
+        serialoutput.send_data(displacement_x, displacement_y, int(width), int(height))
 
 
 def draw_fps(frame, fps):

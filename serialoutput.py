@@ -6,6 +6,7 @@ import serial
 
 ser = None
 
+
 def init_serial(port, baudrate):
     """ Open serial interface, if available """
     global ser
@@ -16,7 +17,9 @@ def init_serial(port, baudrate):
     except:
         print "Couldn't open serial port!"
 
-def send_data(ser, *data):
+
+# TODO: ser should not be passed to this function!
+def send_data(*data):
     """
     Takes a list of data to send and sends it over serial in a comma
     separated list. Each data element in a packet is separated by a tab, and each

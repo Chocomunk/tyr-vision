@@ -136,7 +136,6 @@ def target_center(target):
 
 def image_center(frame):
     """ Returns the center coordinate of the given frame """
-    # TODO: fix it so it doesn't need global variables
     height, width = frame.shape[:2]
     return int(width/2), int(height/2)
 

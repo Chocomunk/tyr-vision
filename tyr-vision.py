@@ -11,7 +11,6 @@ from __future__ import division  # always use floating point division
 import sys
 import time
 import cv2
-import serial
 
 """ LOCAL MODULE IMPORTS """
 import videoinput
@@ -87,7 +86,8 @@ while(videoinput.cap.isOpened()):
     cur_time = time.time()
     if ret:
         best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
-        videooverlay.draw_targeting_HUD(frame, best_match, serialoutput.ser)
+        videooverlay.draw_targeting_HUD(frame, best_match)
+        # TODO: serial output should be called in this loop, NOT draw_targeting_HUD!
         videooverlay.draw_base_HUD(frame)
         fps = int(1.0 / (cur_time - prev_time))
         #print "FPS: %s" % fps
