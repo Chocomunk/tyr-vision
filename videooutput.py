@@ -2,7 +2,13 @@
 #
 # Module for writing video output to the disk.
 
+""" LIBRARY IMPORTS """
+import time
 import cv2
+
+""" LOCAL MODULE IMPORTS """
+import videoinput
+
 
 def start_recording(codec, filename = time.strftime("%Y-%m-%d_%H-%M-%S")):
     """ Start recording video to the disk """
