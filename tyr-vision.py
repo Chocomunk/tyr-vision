@@ -33,7 +33,6 @@ baudrate = 9600
 """ Video Settings """
 show_video = False
 save_video = False
-video_writer = None
 codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
 
 
@@ -66,13 +65,18 @@ while i < len(sys.argv):
             save_video = True
     i += 1
 
+
+""" INITIALIZE MODULES """
 serialoutput.init_serial(port, baudrate)
+if videoinput.cap is None:
+    print "No video input specified; using 12ft.mp4"
+    videoinput.open_stream('12ft.mp4')
 
-
-""" VIDEO PROCESSING LOOP """
 if save_video:
     videooutput.start_recording(codec)
 
+
+""" VIDEO PROCESSING LOOP """
 prev_time = time.time()
 cur_time = time.time()
 
@@ -93,7 +97,7 @@ while(videoinput.cap.isOpened()):
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
         try:
-            video_writer.write(frame)
+            videooutput.video_writer.write(frame)
         except:
             pass
 

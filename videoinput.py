@@ -4,9 +4,11 @@
 
 import cv2
 
-cap = cv2.VideoCapture('video_in/12ft.mp4')
+#cap = cv2.VideoCapture('video_in/12ft.mp4')
+cap = None
 frame_width = 0
 frame_height = 0
+
 
 def open_stream(device):
     global cap
@@ -31,8 +33,9 @@ def open_stream(device):
     frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
     if frame_width == frame_height == 0:
         print "ERROR: resolution is 0x0; falling back to 12ft.mp4"
-        videoinput.cap = cv2.VideoCapture('video_in/12ft.mp4')
+        cap = cv2.VideoCapture('video_in/12ft.mp4')
         frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
     print "Video resolution: %sx%s" % (frame_width, frame_height)
+

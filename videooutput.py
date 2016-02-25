@@ -10,15 +10,22 @@ import cv2
 import videoinput
 
 
-def start_recording(codec, filename = time.strftime("%Y-%m-%d_%H-%M-%S")):
+video_writer = None
+filetype = 'avi'
+
+
+def start_recording(codec, filename=time.strftime("%Y-%m-%d_%H-%M-%S")):
     """ Start recording video to the disk """
     global video_writer
     folder = 'video_out/'  # eventually replace this with the SD card folder
-    filetype = 'avi'
     # TODO: also include branch name and/or commit ID
     path = folder + filename + '.' + filetype
     print "Saving video to: %s" % path
-    video_writer = cv2.VideoWriter(path, codec, 30, (videoinput.frame_width, videoinput.frame_height))
+    try:
+        video_writer = cv2.VideoWriter(path, codec, 30, (videoinput.frame_width, videoinput.frame_height))
+    except:
+        print "Failed to open video file for writing!"
+
 
 def stop_recording():
     """ Stop recording video to the disk """
