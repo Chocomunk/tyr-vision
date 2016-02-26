@@ -30,6 +30,7 @@ baudrate = 9600
 #baudrate = 15200
 
 """ Video Settings """
+device = None
 show_video = False
 save_video = False
 codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
@@ -47,7 +48,7 @@ while i < len(sys.argv):
             save_video = True
         elif flag == "--device":
             i += 1
-            videoinput.open_stream(sys.argv[i])
+            device = sys.argv[i]
         elif flag == "--port":
             i += 1
             port = sys.argv[i]
@@ -67,9 +68,7 @@ while i < len(sys.argv):
 
 """ INITIALIZE MODULES """
 serialoutput.init_serial(port, baudrate)
-if videoinput.cap is None:
-    print "No video input specified; using 12ft.mp4"
-    videoinput.open_stream('12ft.mp4')
+videoinput.open_stream(device)
 
 if save_video:
     videooutput.start_recording(codec)

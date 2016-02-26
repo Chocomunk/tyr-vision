@@ -11,9 +11,19 @@ frame_height = 0
 
 
 def open_stream(device):
+    """
+    Opens the video input device. By default, the file video_input/12ft.mp4 is
+    opened. If an integer X is specified, it opens the camera device at
+    /dev/videoX and sets its resolution to 1920x1080. Otherwise, a video file of
+    the specified name within video_input is opened.
+    """
+
     global cap
     global frame_width
     global frame_height
+
+    if device is None:
+        device = '12ft.mp4'
 
     try:
         # an integer X indicates the webcam address, ie. /dev/videoX
@@ -28,7 +38,7 @@ def open_stream(device):
         cap = cv2.VideoCapture("video_in/" + device)
         print "Opened video file at: %s" % device
 
-    # Video dimensions
+    # Figure out the video dimensions
     frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
     if frame_width == frame_height == 0:
@@ -38,4 +48,3 @@ def open_stream(device):
         frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
     print "Video resolution: %sx%s" % (frame_width, frame_height)
-
