@@ -18,22 +18,35 @@ def init_serial(port, baudrate):
         print "Couldn't open serial port!"
 
 
-# TODO: ser should not be passed to this function!
+def serialize(*data):
+    """
+    Formats given data into a string in a format suitable for sending it over
+    the serial interface.
+
+    Each data element is separated by a tab, and the line is
+    terminated with a carriage return and linefeed.
+
+    Example: If the data is (-210, 42, 61, 20) then it returns:
+    "-210\t42\t61\t20\r\n"
+    """
+    string = ""
+    for i in range(0, len(data)):
+        string += str(data[i]) + "\t"
+
+    string = string[:-2] # Remove trailing 2 characters, ie. '\t'
+    string += '\r\n'  # add carriage return and linefeed
+    return string
+
+
 def send_data(*data):
-    """
-    Takes a list of data to send and sends it over serial in a comma
-    separated list. Each data element in a packet is separated by a tab, and each
-    packet is separated by a linefeed.
-
-    Example: If the displacement vector is <-210, 42> then we send:
-    -210\t42\n
-
-    """
+    """ Sends given data over serial. """
+    string = serialize(data)
     if ser != None:
-        string = ""
-        for i in range(0, len(data)):
-            string += str(data[i]) + "\t"
-        string = string[:-2] # Remove trailing ', '
-        string += '\r\n'  # linefeed at end of line
         #print string,  # print without an extra linefeed
         ser.write(string)
+
+
+def close():
+    """ Closes the serial interface """
+    if ser is not None:
+        ser.close()

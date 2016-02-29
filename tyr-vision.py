@@ -109,7 +109,6 @@ while(videoinput.cap.isOpened()):
 
         if pause:
             print "Pausing video"
-            videooutput.stop_recording()
             while True:
                 if cv2.waitKey(1) == ord(' '):  # resume with the spacebar
                     print "Resuming video"
@@ -121,5 +120,4 @@ while(videoinput.cap.isOpened()):
 """ CLEAN UP """
 videoinput.cap.release()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
-if serialoutput.ser != None:
-    serialoutput.ser.close()  # close the serial interface
+serialoutput.close()
