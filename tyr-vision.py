@@ -13,6 +13,7 @@ import time
 import cv2
 
 """ LOCAL MODULE IMPORTS """
+import settings
 import videoinput
 import videooutput
 import targeting
@@ -21,57 +22,15 @@ import serialoutput
 import networking
 
 
-""" DEFAULT SETTINGS """
-""" Serial Output """
-#port = '/dev/ttyS0' # primary DB9 RS-232 port
-#port = '/dev/ttyUSB0' # primary USB-serial port
-port = '/dev/ttyTHS0'  # primary 1.8V UART on the Jetson
-baudrate = 9600
-#baudrate = 15200
-
-""" Video Settings """
-device = None
-show_video = False
-save_video = False
-codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
-
-
-
 """ PROCESS COMMAND LINE FLAGS """
-i = 1
-while i < len(sys.argv):
-    flag = sys.argv[i]
-    if flag[:2] == "--":
-        if flag == "--show":
-            show_video = True
-        elif flag == "--save":
-            save_video = True
-        elif flag == "--device":
-            i += 1
-            device = sys.argv[i]
-        elif flag == "--port":
-            i += 1
-            port = sys.argv[i]
-        elif flag == "--baudrate":
-            i += 1
-            baudrate = sys.argv[i]
-        elif flag == "--codec":
-            i += 1
-            codec = cv2.cv.CV_FOURCC(*list(sys.argv[i]))
-    elif flag[0] == "-":
-        if "s" in flag:
-            show_video = True
-        if "S" in flag:
-            save_video = True
-    i += 1
-
+settings.process_arguments(sys.argv)
 
 """ INITIALIZE MODULES """
-serialoutput.init_serial(port, baudrate)
-videoinput.open_stream(device)
+serialoutput.init_serial(settings.port, settings.baudrate)
+videoinput.open_stream(settings.device)
 
-if save_video:
-    videooutput.start_recording(codec)
+if settings.save_video:
+    videooutput.start_recording(settings.codec)
 
 
 """ VIDEO PROCESSING LOOP """
@@ -92,7 +51,7 @@ while(videoinput.cap.isOpened()):
         #print "FPS: %s" % fps
         videooverlay.draw_fps(frame, fps)
 
-        if show_video:
+        if settings.show_video:
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
         try:
