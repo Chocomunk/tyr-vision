@@ -27,6 +27,12 @@ def start_recording(codec, filename=time.strftime("%Y-%m-%d_%H-%M-%S")):
         print "Failed to open video file for writing!"
 
 
+def write(frame):
+    """ Write the given frame to the output file. """
+    video_writer.write(frame)
+
+
+
 def stop_recording():
     """ Stop recording video to the disk """
     global video_writer

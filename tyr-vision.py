@@ -96,7 +96,7 @@ while(videoinput.cap.isOpened()):
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
         try:
-            videooutput.video_writer.write(frame)
+            videooutput.write(frame)
         except:
             pass
 
