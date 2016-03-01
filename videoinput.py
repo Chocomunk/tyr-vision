@@ -48,3 +48,7 @@ def open_stream(device):
         frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
     print "Video resolution: %sx%s" % (frame_width, frame_height)
+
+
+def close_stream():
+    cap.release()

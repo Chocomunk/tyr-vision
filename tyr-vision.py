@@ -77,6 +77,6 @@ while(videoinput.cap.isOpened()):
 
 
 """ CLEAN UP """
-videoinput.cap.release()  # close the video interface
+videoinput.close_stream()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
 serialoutput.close()
