@@ -24,6 +24,7 @@ import networking
 
 """ PROCESS COMMAND LINE FLAGS """
 settings.process_arguments(sys.argv)
+settings.print_settings()
 
 """ INITIALIZE MODULES """
 serialoutput.init_serial(settings.port, settings.baudrate)

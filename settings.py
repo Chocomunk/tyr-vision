@@ -66,7 +66,14 @@ def process_arguments(args):
 
 
 def print_settings():
-    print
+    """ Print the current settings.  """
+    print "\nSETTINGS"
+    print "Serial port:\t%s @ %s baud" % (port, baudrate)
+    print "Capture device:\t%s" % device
+    print "Show video?\t%s" % show_video
+    print "Save video?\t%s" % save_video
+    print "Output codec:\t%s" % codec
+    print # extra linefeed
 
 
 # TODO: write unittests
