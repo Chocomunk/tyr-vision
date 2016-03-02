@@ -18,7 +18,7 @@ def init_serial(port, baudrate):
         print "Couldn't open serial port!"
 
 
-def serialize(*data):
+def serialize(data):
     """
     Formats given data into a string in a format suitable for sending it over
     the serial interface.
@@ -35,6 +35,7 @@ def serialize(*data):
 
     string = string[:-2] # Remove trailing 2 characters, ie. '\t'
     string += '\r\n'  # add carriage return and linefeed
+    #print string,  # print without an extra linefeed (for debugging)
     return string
 
 
