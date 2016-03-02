@@ -55,7 +55,7 @@ while(videoinput.cap.isOpened()):
 
         try:
             # TODO: these variables should be moved to settings.py
-            if networking.streaming and networking.frame_until_stream == 0:
+            if networking.streaming and networking.frame_until_stream < 1:
                 networking.send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
                 networking.frame_until_stream = 2
             else: networking.frame_until_stream -=1

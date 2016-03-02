@@ -79,7 +79,6 @@ def main():
         for i in xrange(160):
 
             packet = s.recv(121)
-            print len(packet)
             frame_number = ord(packet[0])
             incoming_packet = packet[1:]
             if len(incoming_packet) != 120:
@@ -101,14 +100,14 @@ def main():
             # frame = decode_data(''.join([s.recv(BUFFER_SIZE) for i in xrange(128)]))
             # import ipdb; ipdb.set_trace()
             if frame is not None:
-                y0, dy = 50, 4
-                for i, line in enumerate(HUD_TEXT.split("\n")):
-                    y = y0 + i * dy
-                    cv2.putText(frame, line, (50, y), cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
+#                y0, dy = 50, 4
+#                for i, line in enumerate(HUD_TEXT.split("\n")):
+#                    y = y0 + i * dy
+#                    cv2.putText(frame, line, (50, y), cv2.FONT_HERSHEY_SIMPLEX, 1, 2)
                 cv2.imshow('tyr-vision', cv2.resize(frame, (1280, 720)))  # show the image output on-screen
                 cv2.waitKey(50)
                 if save_video:
                     pass
-# except KeyboardInterrupt:
+# except Keybo`ardInterrupt:
 #    pass
 main()

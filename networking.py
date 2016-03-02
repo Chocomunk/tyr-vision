@@ -42,11 +42,10 @@ def send_video(frame):
             for j in xrange(160): #width
                 if counter == 1: # if we need to send
 
-                    sent+=1 # for debugging
                     s.send(chr(sent)+data+chr(frame[i,j]))#send the data
                     data = ""
                     counter = 120
-
+		    sent += 1
                 else:
                     data+=chr(frame[i][j])
                     counter-=1
