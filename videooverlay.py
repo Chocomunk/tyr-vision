@@ -51,7 +51,7 @@ def draw_targeting_HUD(frame, target):
         serialoutput.send_data("No target")
     else:  # draw the best match and its bounding box
         cv2.drawContours(frame, [target], 0, (255, 255, 0), 3) # Draw target in cyan
-        draw_goal(frame, target)
+        #draw_goal(frame, target)
 
         center_x, center_y = targeting.image_center(frame)
         target_x, target_y = targeting.target_center(target)
