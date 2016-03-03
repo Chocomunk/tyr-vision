@@ -32,11 +32,14 @@ serialoutput.init_serial(settings.port, settings.baudrate)
 videoinput.open_stream(settings.device)
 
 if settings.save_video:
-    videooutput.start_recording(settings.codec)
+    t0 = Thread(target=videooutput.start_recording, args=(settings.codec,))
+    t0.daemon = True
+    t0.start()
+    #videooutput.start_recording(settings.codec)
 
-t = Thread(target=networking.try_connection)  # networking thread
-t.daemon = True  # thread automatically closes when main thread closes
-t.start()
+t1 = Thread(target=networking.try_connection)  # networking thread
+t1.daemon = True  # thread automatically closes when main thread closes
+t1.start()
 
 
 
