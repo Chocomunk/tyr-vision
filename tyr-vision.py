@@ -34,7 +34,9 @@ videoinput.open_stream(settings.device)
 if settings.save_video:
     videooutput.start_recording(settings.codec)
 
-Thread(target=networking.try_connection).start()
+t = Thread(target=networking.try_connection)  # networking thread
+t.daemon = True  # thread automatically closes when main thread closes
+t.start()
 
 
 
