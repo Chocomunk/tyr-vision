@@ -6,7 +6,7 @@ from threading import Thread
 
 SERVER_IP = "10.0.8.202"
 SERVER_PORT = 56541
-DATA_PORT = 56541
+DATA_PORT = 56542
 VIDEO_START_STOP_PORT = 56543
 
 save_video = False
@@ -35,7 +35,7 @@ s.connect((SERVER_IP, SERVER_PORT))
 def startStopVideo():
     print "If you would like to start recording Video, enter the name of the Video Here. OtherWise, do nothing"
     vid_name = raw_input("File Name: ")
-    record_socket.send(chr(0))
+    record_socket.send(chr(0) + vid_name)
     raw_input("To stop recording Video, hit enter")
     record_socket.send(chr(1))
     startStopVideo()

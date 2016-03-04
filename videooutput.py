@@ -6,7 +6,7 @@
 import time
 import cv2
 
-""" LOCAL MODULE IMPORTS """
+# LOCAL MODULE IMPORTS
 import videoinput
 
 

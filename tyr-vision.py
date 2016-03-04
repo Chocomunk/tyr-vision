@@ -13,7 +13,8 @@ import time
 import cv2
 from threading import Thread
 
-""" LOCAL MODULE IMPORTS """
+# LOCAL MODULE IMPORTS
+
 import settings
 import videoinput
 import videooutput
@@ -34,7 +35,8 @@ videoinput.open_stream(settings.device)
 if settings.save_video:
     videooutput.start_recording(settings.codec)
 
-Thread(target=networking.try_connection).start()
+Thread(target=networking.try_connection_streaming).start()
+Thread(target=networking.try_connection_start_stop_writing).start()
 
 
 
