@@ -17,6 +17,7 @@ baudrate = 9600
 device = None
 show_video = False
 save_video = False
+sidebyside = False
 codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
 
 
@@ -32,6 +33,7 @@ def process_arguments(args):
     global device
     global show_video
     global save_video
+    global sidebyside
     global codec
 
     i = 1
@@ -42,6 +44,8 @@ def process_arguments(args):
                 show_video = True
             elif flag == "--save":
                 save_video = True
+            elif flag == "--sidebyside":
+                sidebyside = True
             elif flag == "--device":
                 i += 1
                 device = args[i]
