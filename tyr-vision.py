@@ -40,8 +40,8 @@ if settings.save_video:
     # videooutput.start_recording(settings.codec)
 
 
-t1 = Thread(target=networking.try_connection_streaming).start()
-t2 = Thread(target=networking.try_connection_start_stop_writing).start()
+t1 = Thread(target=networking.try_connection_streaming)
+t2 = Thread(target=networking.try_connection_start_stop_writing)
 
 t1.daemon = True  # thread automatically closes when main thread closes
 t1.start()
