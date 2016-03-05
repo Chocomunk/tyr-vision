@@ -10,8 +10,10 @@
 from __future__ import division  # always use floating point division
 import sys
 import time
-import cv2
 from threading import Thread
+import cv2
+import numpy as np
+import pyautogui
 
 # LOCAL MODULE IMPORTS
 
@@ -33,11 +35,20 @@ serialoutput.init_serial(settings.port, settings.baudrate)
 videoinput.open_stream(settings.device)
 
 if settings.save_video:
-    videooutput.start_recording(settings.codec)
+    t0 = Thread(target=videooutput.start_recording, args=(settings.codec,))
+    t0.daemon = True
+    t0.start()
+    # videooutput.start_recording(settings.codec)
 
-Thread(target=networking.try_connection_streaming).start()
-Thread(target=networking.try_connection_start_stop_writing).start()
 
+t1 = Thread(target=networking.try_connection_streaming).start()
+t2 = Thread(target=networking.try_connection_start_stop_writing).start()
+
+t1.daemon = True  # thread automatically closes when main thread closes
+t1.start()
+
+t2.daemon = True
+t2.start()
 
 
 """ VIDEO PROCESSING LOOP """
@@ -46,9 +57,13 @@ cur_time = time.time()
 
 while(videoinput.cap.isOpened()):
     pause = False
-    ret, frame = videoinput.cap.read()  # read a frame
     prev_time = cur_time
     cur_time = time.time()
+
+    ret, frame = videoinput.cap.read()  # read a frame
+    if settings.sidebyside:
+        original_frame = frame.copy()
+
     if ret:
         best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
         videooverlay.draw_targeting_HUD(frame, best_match)
@@ -58,7 +73,7 @@ while(videoinput.cap.isOpened()):
         try:
             # TODO: these variables should be moved to settings.py
             if networking.streaming and networking.frame_until_stream < 1:
-                networking.send_video(cv2.cvtColor(cv2.resize(frame,(160,120)), cv2.COLOR_BGR2GRAY))
+                networking.send_video(cv2.cvtColor(cv2.resize(frame, (160, 120)), cv2.COLOR_BGR2GRAY))
                 networking.frame_until_stream = 2
             else: networking.frame_until_stream -=1
         except:
@@ -69,7 +84,13 @@ while(videoinput.cap.isOpened()):
         #print "FPS: %s" % fps
         videooverlay.draw_fps(frame, fps)
 
+        if settings.sidebyside:  # render original & processed images side by side
+            frame = np.hstack((original_frame, frame))
+
         if settings.show_video:
+            cv2.namedWindow("tyr-vision", cv2.cv.CV_WINDOW_NORMAL)  # allow resizing
+            screen_width, screen_height = pyautogui.size()
+            cv2.resizeWindow("tyr-vision", screen_width, screen_height)
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 
         try:
