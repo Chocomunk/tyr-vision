@@ -36,6 +36,7 @@ To exit the program, press the 'q' key. Note that the program cannot be exited i
 #### Flags ####
 * `--show` or `-s` - Show the processed video on-screen.
 * `--save` or `-S` - Save the processed video to disk. The file will be a timestamped AVI in the current directory. 
+* `--fps` - Print the fps, average fps for the last 10 frames, and total average fps to the console.
 * `--device` - Set the device to pull the video from. An integer X specifies the camera address `/dev/videoX` while anything else refers to the filepath of a video file. 
 * `--port` - Set the location of the serial port (should be of the form `/dev/tty`*)
 * `--baudrate` - Set the baudrate (bits per second)

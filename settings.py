@@ -15,6 +15,7 @@ baudrate = 9600
 
 """ Video Settings """
 device = None
+print_fps = False
 show_video = False
 save_video = False
 sidebyside = False
@@ -31,6 +32,7 @@ def process_arguments(args):
     global port
     global baudrate
     global device
+    global print_fps
     global show_video
     global save_video
     global sidebyside
@@ -46,6 +48,8 @@ def process_arguments(args):
                 save_video = True
             elif flag == "--sidebyside":
                 sidebyside = True
+            elif flag == "--fps":
+                print_fps = True
             elif flag == "--device":
                 i += 1
                 device = args[i]

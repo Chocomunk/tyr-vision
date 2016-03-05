@@ -52,13 +52,15 @@ t2.start()
 
 
 """ VIDEO PROCESSING LOOP """
-prev_time = time.time()
-cur_time = time.time()
+initial_time = time.time() # Time the program was started
+total_frames = 0 # Number of frames analyzed
+times = [time.time()] # List of the times of the last 10 analyzed frames
 
 while(videoinput.cap.isOpened()):
     pause = False
-    prev_time = cur_time
-    cur_time = time.time()
+    total_frames += 1
+    times.append(time.time())
+    if len(times) > 10: times.pop(0)
 
     ret, frame = videoinput.cap.read()  # read a frame
     if settings.sidebyside:
@@ -80,8 +82,10 @@ while(videoinput.cap.isOpened()):
             print "Error in video streaming Loop"
             pass
 
-        fps = int(1.0 / (cur_time - prev_time))
-        #print "FPS: %s" % fps
+        fps = int(1.0 / (times[-1] - times[-2]))
+        ten_fps = int(min(10.0, total_frames) / (times[-1] - times[0]))
+        avg_fps = int(total_frames / (times[-1] - initial_time))
+        if settings.print_fps: print "%s\t%s\t%s" % (fps, ten_fps, avg_fps)
         videooverlay.draw_fps(frame, fps)
 
         if settings.sidebyside:  # render original & processed images side by side
