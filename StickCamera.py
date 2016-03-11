@@ -8,17 +8,21 @@ WIDTH = 640
 HEIGHT = 480
 
 try:
-    cap = cv2.VideoCapture(1)
-except:
     cap = cv2.VideoCapture(0)
+except:
+    cap = cv2.VideoCapture(1)
 
-# set resolution to 1080p
-cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
-cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
+try:
+    # set resolution to 1080p
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
+except: pass
 
-# make the window resizable
-cv2.namedWindow("stick", cv2.cv.CV_WINDOW_NORMAL)
-cv2.resizeWindow("stick", WIDTH, HEIGHT)
+try:
+    # make the window resizable
+    cv2.namedWindow("stick", cv2.cv.CV_WINDOW_NORMAL)
+    cv2.resizeWindow("stick", WIDTH, HEIGHT)
+except: pass
 
 
 while cap.isOpened():
