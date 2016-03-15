@@ -132,8 +132,6 @@ def target_center(target):
     left_pt = get_nth_point(target, 6)
     right_pt = get_nth_point(target, 1)
 
-    x_pos = int(((left_pt[0] + right_pt[0]) / 2) + ((left_pt[0] + right_pt[0]) /2 ) /2)
-
     return right_pt[0], int((left_pt[1] + right_pt[1]) / 2)
 
 
