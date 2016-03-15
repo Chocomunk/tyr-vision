@@ -8,6 +8,7 @@ import cv2
 cap = None
 frame_width = 0
 frame_height = 0
+frame_area = 0
 
 
 def open_stream(device):
@@ -21,6 +22,7 @@ def open_stream(device):
     global cap
     global frame_width
     global frame_height
+    global frame_area
 
     if device is None:
         device = '12ft.mp4'
@@ -47,6 +49,7 @@ def open_stream(device):
         frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
+    frame_area = frame_width * frame_height
     print "Video resolution: %sx%s" % (frame_width, frame_height)
 
 

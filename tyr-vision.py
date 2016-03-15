@@ -67,6 +67,7 @@ while(videoinput.cap.isOpened()):
 
     if ret:
         best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
+        if best_match is not None: print videoinput.frame_area / cv2.contourArea(best_match)
         videooverlay.draw_targeting_HUD(frame, best_match)
         # TODO: serial output should be called in this loop, NOT draw_targeting_HUD!
         videooverlay.draw_base_HUD(frame)
