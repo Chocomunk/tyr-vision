@@ -26,6 +26,10 @@ import networking
 
 avg_distance = None
 
+a = -0.0011726
+b = 0.61309
+c = -67.821
+
 """ PROCESS COMMAND LINE FLAGS """
 settings.process_arguments(sys.argv)
 settings.print_settings()
@@ -72,8 +76,9 @@ while(videoinput.cap.isOpened()):
 
         if best_match is not None:
 
+            scaler = videoinput.frame_area / cv2.contourArea(best_match)
 
-            distance = -12.529 + 0.095723*(videoinput.frame_area / cv2.contourArea(best_match))
+            distance = a*(scaler**2)+b*scaler+c
             print distance
             displacement_x, displacement_y, width, height = videooverlay.draw_targeting_HUD(frame, best_match)
 
