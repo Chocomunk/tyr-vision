@@ -26,6 +26,8 @@ import networking
 
 avg_distance = None
 
+GOAL_INCHES = 18
+
 a = -0.0011726
 b = 0.61309
 c = -67.821
@@ -78,9 +80,19 @@ while(videoinput.cap.isOpened()):
 
             scaler = videoinput.frame_area / cv2.contourArea(best_match)
 
-            distance = a*(scaler**2)+b*scaler+c
+            distance = (a*(scaler**2)+b*scaler+c)*12
+
             print distance
             displacement_x, displacement_y, width, height = videooverlay.draw_targeting_HUD(frame, best_match)
+
+            pixels_to_inches = GOAL_INCHES / (targeting.get_nth_point(best_match, 1)[0] - targeting.get_nth_point(best_match, 6)[0]) 
+
+            x_inches_displacement = pixels_to_inches*displacement_x
+
+            x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958
+
+            print x_inches_displacement
+            print x_angle_displacement
 
             if avg_distance is not None:
                 avg_distance = (distance+avg_distance)/2
