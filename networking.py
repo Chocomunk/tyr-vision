@@ -1,6 +1,8 @@
 # networking.py
 #
 # Module for networking to the Driver Station
+#
+# IP camera code from: https://gist.github.com/thearn/5562029
 import base64
 import socket
 import videooutput
