@@ -24,8 +24,7 @@ class ipCamera(object):
 
     def __init__(self, url, user=None, password=None):
         self.url = url
-        auth_encoded = base64.encodestring('%s:%s' % (user, password))[:-1]
-
+        auth_encoded = base64.encodestring('%s:%s' % ("root", "password"))[:-1]
         self.req = urllib2.Request(self.url)
         self.req.add_header('Authorization', 'Basic %s' % auth_encoded)
 
@@ -33,7 +32,7 @@ class ipCamera(object):
         response = urllib2.urlopen(self.req)
         img_array = np.asarray(bytearray(response.read()), dtype=np.uint8)
         frame = cv2.imdecode(img_array, 1)
-        return frame.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
+        return frame.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR
 
 
 def try_connection_streaming():

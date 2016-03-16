@@ -2,7 +2,7 @@
 #
 # Module for serial output
 
-import serial
+# import serial
 
 ser = None
 

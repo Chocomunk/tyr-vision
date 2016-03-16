@@ -31,26 +31,22 @@ def open_stream(device):
         device = '12ft.mp4'
 
     try:
-        if using_axis:
-            cap = networking.ipCamera("10.0.8.20/mjpg/video.mjpg", user="root", password="camera")
-            # cap = cv2.VideoCapture("root:camera@10.0.8.20/mjpg/video.mjpg")
 
-        else:
-            # an integer X indicates the webcam address, ie. /dev/videoX
-            cap = cv2.VideoCapture(int(device))
-            # set resolution manually
-            # the Logitech C920 is 1080p
-            cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
-            cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
-            print "Opened webcam at: /dev/video%s" % device
+        # an integer X indicates the webcam address, ie. /dev/videoX
+        cap = cv2.VideoCapture(int(device))
+        # set resolution manually
+        # the Logitech C920 is 1080p
+        cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
+        cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
+        print "Opened webcam at: /dev/video%s" % device
     except:
-        # if it's not an integer, it's a filepath for a video
+        
+       # if it's not an integer, it's a filepath for a video
         cap = cv2.VideoCapture("video_in/" + device)
         print "Opened video file at: %s" % device
-
     # Figure out the video dimensions
-    frame_width = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
-    frame_height = int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+    frame_width = 400#int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+    frame_height = 640 #int(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
     if frame_width == frame_height == 0:
         print "ERROR: resolution is 0x0; falling back to 12ft.mp4"
         cap = cv2.VideoCapture('video_in/12ft.mp4')

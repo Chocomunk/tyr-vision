@@ -19,7 +19,7 @@ print_fps = False
 show_video = False
 save_video = False
 sidebyside = False
-codec = cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
+codec = None # cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
 
 
 def process_arguments(args):
