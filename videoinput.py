@@ -10,6 +10,8 @@ frame_width = 0
 frame_height = 0
 frame_area = 0
 
+using_axis = True
+
 
 def open_stream(device):
     """
@@ -28,13 +30,17 @@ def open_stream(device):
         device = '12ft.mp4'
 
     try:
-        # an integer X indicates the webcam address, ie. /dev/videoX
-        cap = cv2.VideoCapture(int(device))
-        # set resolution manually
-        # the Logitech C920 is 1080p
-        cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
-        print "Opened webcam at: /dev/video%s" % device
+        if using_axis:
+            cap = cv2.VideoCapture("root:camera@10.0.8.202/stream.mjpg")
+
+        else:
+            # an integer X indicates the webcam address, ie. /dev/videoX
+            cap = cv2.VideoCapture(int(device))
+            # set resolution manually
+            # the Logitech C920 is 1080p
+            cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1920)
+            cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 1080)
+            print "Opened webcam at: /dev/video%s" % device
     except:
         # if it's not an integer, it's a filepath for a video
         cap = cv2.VideoCapture("video_in/" + device)

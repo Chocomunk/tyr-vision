@@ -74,7 +74,7 @@ total_frames = 0 # Number of frames analyzed
 times = [time.time()] # List of the times of the last 10 analyzed frames
 
 while(videoinput.cap.isOpened()):
-    frame = networking.read_from_axis()
+    # frame = networking.read_from_axis()
 
     pause = False
     total_frames += 1
