@@ -82,7 +82,6 @@ while(videoinput.cap.isOpened()):
 
             distance = (a*(scaler**2)+b*scaler+c)*12
 
-            print distance
             displacement_x, displacement_y, width, height = videooverlay.draw_targeting_HUD(frame, best_match)
 
             pixels_to_inches = GOAL_INCHES / (targeting.get_nth_point(best_match, 1)[0] - targeting.get_nth_point(best_match, 6)[0]) 
@@ -91,8 +90,10 @@ while(videoinput.cap.isOpened()):
 
             x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958
 
-            print x_inches_displacement
-            print x_angle_displacement
+
+            print "Distance to the goal" + str(distance)
+            print "Inches offset" + str(x_inches_displacement)
+            print "Angle Offset:" + str(x_angle_displacement)
 
             if avg_distance is not None:
                 avg_distance = (distance+avg_distance)/2
