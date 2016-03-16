@@ -3,6 +3,7 @@
 # Module for getting video input from either a webcam or a video file.
 
 import cv2
+import networking
 
 #cap = cv2.VideoCapture('video_in/12ft.mp4')
 cap = None
@@ -31,7 +32,8 @@ def open_stream(device):
 
     try:
         if using_axis:
-            cap = cv2.VideoCapture("root:camera@10.0.8.202/stream.mjpg")
+            cap = networking.ipCamera("10.0.8.20/mjpg/video.mjpg", user="root", password="camera")
+            # cap = cv2.VideoCapture("root:camera@10.0.8.20/mjpg/video.mjpg")
 
         else:
             # an integer X indicates the webcam address, ie. /dev/videoX

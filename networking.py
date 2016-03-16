@@ -1,11 +1,11 @@
 # networking.py
 #
 # Module for networking to the Driver Station
-
+import base64
 import socket
 import videooutput
 import cv2
-import urllib 
+import urllib2
 import numpy as np
 
 streaming = False
@@ -18,21 +18,21 @@ PORT_STREAMING = 56541
 PORT_START_STOP = 56543
 
 
-# TODO: make this function take IP and PORT as arguments
+class ipCamera(object):
 
-def read_from_axis():
+    def __init__(self, url, user=None, password=None):
+        self.url = url
+        auth_encoded = base64.encodestring('%s:%s' % (user, password))[:-1]
 
+        self.req = urllib2.Request(self.url)
+        self.req.add_header('Authorization', 'Basic %s' % auth_encoded)
 
-    stream=urllib.urlopen('http://10.0.8.200/frame.mjpg')
+    def get_frame(self):
+        response = urllib2.urlopen(self.req)
+        img_array = np.asarray(bytearray(response.read()), dtype=np.uint8)
+        frame = cv2.imdecode(img_array, 1)
+        return frame.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
 
-    bytes+=stream.read(1024)
-    a = bytes.find('\xff\xd8')
-    b = bytes.find('\xff\xd9')
-    if a!=-1 and b!=-1:
-        jpg = bytes[a:b+2]
-        bytes= bytes[b+2:]
-        i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
-        return i
 
 def try_connection_streaming():
     """ Try to create the socket connection. """

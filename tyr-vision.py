@@ -73,7 +73,14 @@ initial_time = time.time() # Time the program was started
 total_frames = 0 # Number of frames analyzed
 times = [time.time()] # List of the times of the last 10 analyzed frames
 
-while(videoinput.cap.isOpened()):
+
+###
+# If using axis: 
+while True:
+###
+# If using Webcam
+# while videoinput.cap.isOpened():
+###
     # frame = networking.read_from_axis()
 
     pause = False
@@ -81,6 +88,8 @@ while(videoinput.cap.isOpened()):
     times.append(time.time())
     if len(times) > 10: times.pop(0)
 
+    frame = videoinput.cap.get_frame()
+    ret = True
     # ret, frame = videoinput.cap.read()  # read a frame
     if settings.sidebyside:
         original_frame = frame.copy()
