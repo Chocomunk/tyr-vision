@@ -24,6 +24,7 @@ import videooverlay
 import serialoutput
 import networking
 
+avg_distance = None
 
 """ PROCESS COMMAND LINE FLAGS """
 settings.process_arguments(sys.argv)
@@ -67,8 +68,21 @@ while(videoinput.cap.isOpened()):
 
     if ret:
         best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
-        if best_match is not None: print videoinput.frame_area / cv2.contourArea(best_match)
-        videooverlay.draw_targeting_HUD(frame, best_match)
+
+
+        if best_match is not None:
+
+
+            distance = -12.529 + 0.095723*(videoinput.frame_area / cv2.contourArea(best_match))
+            print distance
+            displacement_x, displacement_y, width, height = videooverlay.draw_targeting_HUD(frame, best_match)
+
+            if avg_distance is not None:
+                avg_distance = (distance+avg_distance)/2
+            else:
+                avg_distance = distance 
+
+
         # TODO: serial output should be called in this loop, NOT draw_targeting_HUD!
         videooverlay.draw_base_HUD(frame)
 
@@ -129,3 +143,5 @@ while(videoinput.cap.isOpened()):
 videoinput.close_stream()  # close the video interface
 cv2.destroyAllWindows()  #LinuxWorldDomination
 serialoutput.close()
+
+print "AVG" + str(avg_distance)

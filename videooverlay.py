@@ -67,8 +67,11 @@ def draw_targeting_HUD(frame, target):
         #_, _, width, height = cv2.boundingRect(target) # Standard
         _, (width, height), _ = cv2.minAreaRect(target) # Rotated
         # Send displacement data over serial
-        serialoutput.send_data(displacement_x+2000, displacement_y+2000, int(width), int(height))
+        
+        # TODO: Make this network tables or sockets
 
+        # serialoutput.send_data(displacement_x+2000, displacement_y+2000, int(width), int(height))
+        return displacement_x, displacement_y, int(width), int(height)
 
 def draw_fps(frame, fps):
     """ Draws the given framerate onto the given frame """
