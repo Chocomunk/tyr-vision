@@ -23,6 +23,17 @@ import targeting
 import videooverlay
 import serialoutput
 import networking
+from networktables import NetworkTable
+
+IP = "10.0.8.1"
+
+NetworkTable.setIPAddress(IP)
+NetworkTable.setClientMode()
+NetworkTable.initialize()
+
+table = networktables.getTable("AutoAlign")
+
+
 
 avg_distance = None
 
@@ -90,6 +101,7 @@ while(videoinput.cap.isOpened()):
 
             x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958
 
+            table.putNumber("AngleOffset", x_angle_displacement)
 
             print "Distance to the goal" + str(distance)
             print "Inches offset" + str(x_inches_displacement)
@@ -130,8 +142,8 @@ while(videoinput.cap.isOpened()):
                 import pyautogui
                 screen_width, screen_height = pyautogui.size()
                 cv2.resizeWindow("tyr-vision", screen_width, screen_height)
-            except:
-                print "Couldn't import pyautogui"
+            except: pass
+                # print "Couldn't import pyautogui"
 
             cv2.imshow('tyr-vision', frame)  # show the image output on-screen
 

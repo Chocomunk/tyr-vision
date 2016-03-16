@@ -4,6 +4,9 @@
 
 import socket
 import videooutput
+import cv2
+import urllib 
+import numpy as np
 
 streaming = False
 frame_until_stream = 2
@@ -16,6 +19,21 @@ PORT_START_STOP = 56543
 
 
 # TODO: make this function take IP and PORT as arguments
+
+def read_from_axis():
+
+
+    stream=urllib.urlopen('http://10.0.8.200/frame.mjpg')
+
+    bytes+=stream.read(1024)
+    a = bytes.find('\xff\xd8')
+    b = bytes.find('\xff\xd9')
+    if a!=-1 and b!=-1:
+        jpg = bytes[a:b+2]
+        bytes= bytes[b+2:]
+        i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
+        return i
+
 def try_connection_streaming():
     """ Try to create the socket connection. """
     global streaming
