@@ -40,9 +40,16 @@ avg_distance = None
 
 GOAL_INCHES = 18
 
-a = -0.0011726
-b = 0.61309
-c = -67.821
+# a = 122520
+# b = -3203.4
+# c = 23.766
+
+x = -620090
+y = -98.894
+c = 620650
+d = 603600
+g = -719350
+h = -0.22849
 
 """ PROCESS COMMAND LINE FLAGS """
 settings.process_arguments(sys.argv)
@@ -112,14 +119,20 @@ while True:
 
         if ret:
             best_match = targeting.find_best_match(frame)  # perform detection before drawing the HUD
-
             # frame = networking.read_from_axis()
 
             if best_match is not None:
-                scaler = videoinput.frame_area / cv2.contourArea(best_match)
+                scaler = cv2.contourArea(best_match) / 256000#videoinput.frame_area 
 
-                distance = (a*(scaler**2)+b*scaler+c)*12
+                if avg_distance is not None:
+                    avg_distance = (scaler+avg_distance)/2
+                else:
+                    avg_distance = scaler 
+                print scaler
 
+                distance = (x * (np.e**scaler)) - (y * np.log(scaler)) + c + (d*scaler) - (g*(scaler**2)) - (h/scaler)
+                distance = distance * 12
+                distance += 10 # numpy.log((a*(scaler**2)+b*scaler+c)*12
                 displacement_x, displacement_y, width, height = videooverlay.draw_targeting_HUD(frame, best_match)
 
                 pixels_to_inches = GOAL_INCHES / (targeting.get_nth_point(best_match, 1)[0] - targeting.get_nth_point(best_match, 6)[0]) 
@@ -128,16 +141,15 @@ while True:
 
                 x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958
 
-                table.putNumber("AngleOffset", x_angle_displacement)
+                table.putNumber("SkewAngle", x_angle_displacement)
+                table.putNumber("Distance", distance)
+                table.putNumber("xDisplacement", displacement_x)
 
                 print "Distance to the goal" + str(distance)
                 print "Inches offset" + str(x_inches_displacement)
                 print "Angle Offset:" + str(x_angle_displacement)
 
-                if avg_distance is not None:
-                    avg_distance = (distance+avg_distance)/2
-                else:
-                    avg_distance = distance 
+
 
 
             # TODO: serial output should be called in this loop, NOT draw_targeting_HUD!
@@ -173,7 +185,7 @@ while True:
                         # cv2.resizeWindow("tyr-vision", 640, 400)
                     # print "Couldn't import pyautogui"
 
-                cv2.imshow('tyr-vision', frame)  # show the image output on-screen
+                cv2.imshow('tyr-vision', cv2.resize(frame, (1280,800)))  # show the image output on-screen
 
             try:
                 videooutput.write(frame)
