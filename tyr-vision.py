@@ -81,29 +81,26 @@ initial_time = time.time() # Time the program was started
 total_frames = 0 # Number of frames analyzed
 times = [time.time()] # List of the times of the last 10 analyzed frames
 
-# stream = urllib2.urlopen("http://10.0.8.200/mjpg/video.mjpg")
+stream = urllib2.urlopen("http://10.0.8.200/mjpg/video.mjpg")
 bytes=''
 ###
 # If using axis: 
-# while True:
+while True:
 
-    # bytes += stream.read(1024)
-    # # 0xff 0xd8 is the starting of the jpeg frame
-    # a = bytes.find('\xff\xd8')
-    # # 0xff 0xd9 is the end of the jpeg frame
-    # b = bytes.find('\xff\xd9')
-    # # Taking the jpeg image as byte stream
-    # if a!=-1 and b!=-1:
-    #     jpg = bytes[a:b+2]
-    #     bytes= bytes[b+2:]
-    #     # Decoding the byte stream to cv2 readable matrix format
-    #     frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),1)
-
-videoinput.cap = cv2.VideoCapture("12ft.mp4")
-
+    bytes += stream.read(1024)
+    # 0xff 0xd8 is the starting of the jpeg frame
+    a = bytes.find('\xff\xd8')
+    # 0xff 0xd9 is the end of the jpeg frame
+    b = bytes.find('\xff\xd9')
+    # Taking the jpeg image as byte stream
+    if a!=-1 and b!=-1:
+        jpg = bytes[a:b+2]
+        bytes= bytes[b+2:]
+        # Decoding the byte stream to cv2 readable matrix format
+        frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),1)
 ###
 # If using Webcam
-while videoinput.cap.isOpened():
+# while videoinput.cap.isOpened():
 ###
     # frame = networking.read_from_axis()
 
@@ -113,8 +110,8 @@ while videoinput.cap.isOpened():
         if len(times) > 10: times.pop(0)
 
         # frame = videoinput.cap.get_frame()
-        # ret = True
-        ret, frame = videoinput.cap.read()  # read a frame
+        ret = True
+        # ret, frame = videoinput.cap.read()  # read a frame
         if settings.sidebyside:
             original_frame = frame.copy()
 
