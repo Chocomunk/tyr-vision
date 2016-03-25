@@ -126,7 +126,7 @@ while True:
                     avg_distance = (scaler+avg_distance)/2
                 else:
                     avg_distance = scaler 
-                print scaler
+                print "Contounr area / video area: " + scaler
 
                 distance = (x * (np.e**scaler)) - (y * np.log(scaler)) + c + (d*scaler) - (g*(scaler**2)) - (h/scaler)
                 distance = distance * 12
@@ -137,7 +137,7 @@ while True:
 
                 x_inches_displacement = pixels_to_inches*displacement_x
 
-                x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958
+                x_angle_displacement = np.arctan(x_inches_displacement/distance)*57.2958 # Radians to inches
 
                 table.putNumber("SkewAngle", x_angle_displacement)
                 table.putNumber("Distance", distance)
