@@ -126,7 +126,7 @@ while True:
                     avg_distance = (scaler+avg_distance)/2
                 else:
                     avg_distance = scaler 
-                print "Contounr area / video area: " + scaler
+                print "Contounr area / video area: " + str(scaler)
 
                 distance = (x * (np.e**scaler)) - (y * np.log(scaler)) + c + (d*scaler) - (g*(scaler**2)) - (h/scaler)
                 distance = distance * 12
@@ -173,17 +173,17 @@ while True:
                 frame = np.hstack((original_frame, frame))
 
             if settings.show_video:
-                cv2.namedWindow("tyr-vision")  # allow resizing
+                cv2.namedWindow("tyr-vision", cv2.WINDOW_NORMAL)  # allow resizing
 
                 try:
                     import pyautogui
                     screen_width, screen_height = pyautogui.size()
-                    cv2.resizeWindow("tyr-vision", screen_width, screen_height)
+                    cv2.resizeWindow("tyr-vision", settings.VIDEO_WIDTH, settings.VIDEO_HEIGHT)
                 except: pass
                         # cv2.resizeWindow("tyr-vision", 640, 400)
                     # print "Couldn't import pyautogui"
 
-                cv2.imshow('tyr-vision', cv2.resize(frame, (1280,800)))  # show the image output on-screen
+                cv2.imshow('tyr-vision', cv2.resize(frame, (settings.DISPLAY_HEIGHT, settings.DISPLAY_WIDTH)))  # show the image output on-screen
 
             try:
                 videooutput.write(frame)

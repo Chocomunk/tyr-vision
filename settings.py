@@ -4,8 +4,7 @@
 #
 
 import cv2
-
-
+import re
 """ Serial Output """
 #port = '/dev/ttyS0' # primary DB9 RS-232 port
 #port = '/dev/ttyUSB0' # primary USB-serial port
@@ -21,6 +20,8 @@ save_video = False
 sidebyside = False
 codec = None # cv2.cv.CV_FOURCC('M', 'J', 'P', 'G')
 
+DISPLAY_WIDTH = 600
+DISPLAY_HEIGHT = 480
 
 def process_arguments(args):
     """
@@ -41,7 +42,8 @@ def process_arguments(args):
     i = 1
     while i < len(args):
         flag = args[i]
-        if flag[:2] == "--":
+        print flag
+	if flag[:2] == "--":
             if flag == "--show":
                 show_video = True
             elif flag == "--save":
@@ -62,7 +64,11 @@ def process_arguments(args):
             elif flag == "--codec":
                 i += 1
                 codec = cv2.cv.CV_FOURCC(*list(args[i]))
-
+            elif flag[:5] == "--vr:":
+		global DISPLAY_HEIGHT
+		global DISPLAY_WIDTH
+		DISPLAY_WIDTH = int(flag[5:flag.rindex("x")])
+		DISPLAY_HEIGHT = int(flag[flag.rindex("x")+1:])
         elif flag[0] == "-":
             if "s" in flag:
                 show_video = True
