@@ -38,7 +38,7 @@ def find_best_match(frame):
     This function should not modify anything outside of its scope.
     """
     # Find outlines of white objects
-    threshold = 200
+    threshold = 125
     white = cv2.inRange(frame, (threshold, threshold, threshold), (255, 255, 255))  # threshold detection of white regions
     contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
