@@ -38,27 +38,68 @@ def find_best_match(frame):
     This function should not modify anything outside of its scope.
     """
     # Find outlines of white objects
-    threshold = 125
-    white = cv2.inRange(frame, (threshold, threshold, threshold), (255, 255, 255))  # threshold detection of white regions
+    # MIN H : 123
+    # Max H: 236
+    # MIN S: 175
+    # MAX S: 255
+    # MIN V: 0
+    # Max V: 95
+
+    # cv2.cvtColor(cv2.COLOR_BGR_TO_HSV)
+    white = cv2.inRange(frame, (100, 100, 0), (255, 255, 255))  # threshold detection of white regions
     contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
     # Approximate outlines into polygons
     best_match = None # Variable to store best matching contour for U shape
-    best_match_similarity = 1000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
+    best_match_similarity = 100000000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
     for contour in contours:
-        approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
+        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
         # Filter through contours to detect a goal
-        if cv2.contourArea(approx) > 50 and len(approx) == 8:  # select contours with sufficient area and 8 vertices
-            cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
-            # test to see if this contour is the best match
-            if check_match(approx):
-                cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
-                similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
-                if similarity < best_match_similarity:
-                    best_match = approx
-                    best_match_similarity = similarity
+        cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
+
+
+        print cv2.contourArea(approx)
+        print len(approx)
+        if cv2.contourArea(approx) > 50:
+            if len(approx) == 8 or len(approx) == 7:
+                if len(approx) == 7:
+                    approx = fix_seven_point_contour(approx)
+              # select contours with sufficient area and 8 vertices
+
+                cv2.drawContours(frame, [approx], 0, (255, 255, 255), 2)  # draw the contour in red
+                # test to see if this contour is the best match
+                print "1"
+                if check_match(approx):
+                    print "2"
+                    cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
+                    similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
+                    if similarity < best_match_similarity:
+                        print "3"
+                        best_match = approx
+                        best_match_similarity = similarity
 
     return best_match
+
+
+def fix_seven_point_contour(contour):
+    dist = get_nth_point(contour, 1)[0] - get_nth_point(contour, 2)[0] 
+    new_contour = np.ndarray(shape = (8,1,2), dtype = np.int32)
+
+    new_point = np.ndarray(shape = (2), dtype = np.int32)
+    new_point[0] = get_nth_point(contour, 5)[0] + dist
+    new_point[1] = get_nth_point(contour, 1)[1]
+
+    new_contour[0][0] = contour[0]
+    new_contour[1][0] = contour[1]
+    new_contour[2][0] = contour[2]
+    new_contour[3][0] = contour[3]
+    new_contour[4][0] = contour[4]
+    new_contour[5][0] = new_point
+    new_contour[6][0] = contour[5]
+    new_contour[7][0] = contour[6]
+
+
+    return new_contour
 
 
 def check_match(contour):
