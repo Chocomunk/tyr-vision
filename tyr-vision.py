@@ -26,7 +26,7 @@ import networking
 from networktables import NetworkTable
 import urllib2
 
-IP = "10.0.8.121"
+IP = "roborio-8-frc.local"
 
 NetworkTable.setIPAddress(IP)
 NetworkTable.setClientMode()
