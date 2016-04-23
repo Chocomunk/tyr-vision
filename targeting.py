@@ -46,7 +46,7 @@ def find_best_match(frame):
     # Max V: 95
 
     # cv2.cvtColor(cv2.COLOR_BGR_TO_HSV)
-    white = cv2.inRange(frame, (100, 100, 0), (255, 255, 255))  # threshold detection of white regions
+    white = cv2.inRange(frame, (50, 0, 0), (255, 255, 255))  # threshold detection of white regions
     contours, hierarchy = cv2.findContours(white, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)  # find contours in the thresholded image
 
     # Approximate outlines into polygons
@@ -58,8 +58,6 @@ def find_best_match(frame):
         cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
 
 
-        print cv2.contourArea(approx)
-        print len(approx)
         if cv2.contourArea(approx) > 50:
             if len(approx) == 8 or len(approx) == 7:
                 if len(approx) == 7:
@@ -68,13 +66,10 @@ def find_best_match(frame):
 
                 cv2.drawContours(frame, [approx], 0, (255, 255, 255), 2)  # draw the contour in red
                 # test to see if this contour is the best match
-                print "1"
                 if check_match(approx):
-                    print "2"
                     cv2.drawContours(frame, [approx], 0, (0, 128, 255), 2) # Draw U shapes in orange
                     similarity = cv2.matchShapes(approx, goal_contour, 3, 0)
                     if similarity < best_match_similarity:
-                        print "3"
                         best_match = approx
                         best_match_similarity = similarity
 
