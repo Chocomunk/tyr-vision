@@ -58,7 +58,7 @@ def find_best_match(frame):
         cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
 
 
-        if cv2.contourArea(approx) > 50:
+        if cv2.contourArea(approx) > 500:
             if len(approx) == 8 or len(approx) == 7:
                 if len(approx) == 7:
                     approx = fix_seven_point_contour(approx)
