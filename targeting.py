@@ -53,7 +53,7 @@ def find_best_match(frame):
     best_match = None # Variable to store best matching contour for U shape
     best_match_similarity = 100000000 # Similarity of said contour to expected U shape. Defaults to an arbitrarily large number
     for contour in contours:
-        approx = cv2.approxPolyDP(contour, 0.02 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
+        approx = cv2.approxPolyDP(contour, 0.017 * cv2.arcLength(contour, True), True)  # smoothen the contours into simpler polygons
         # Filter through contours to detect a goal
         cv2.drawContours(frame, [approx], 0, (0, 0, 255), 2)  # draw the contour in red
 

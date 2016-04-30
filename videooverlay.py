@@ -34,9 +34,9 @@ def draw_base_HUD(frame):
     center coordinate. """
     center_x, center_y = targeting.image_center(frame)
 
-    cv2.line(frame, (center_x, 0), (center_x, videoinput.frame_height), (0, 0, 0), 2) # Vertical line
-    cv2.line(frame, (0, center_y), (videoinput.frame_width, center_y), (0, 0, 0), 2) # Horizontal line
-    cv2.circle(frame, (center_x, center_y), 25, (0, 0, 0), 2) # center circle
+    cv2.line(frame, (center_x, 0), (center_x, videoinput.frame_height), (180, 105, 255), 2) # Vertical line
+    cv2.line(frame, (0, center_y), (videoinput.frame_width, center_y), (180, 105, 255), 2) # Horizontal line
+    cv2.circle(frame, (center_x, center_y), 25, (180, 105, 255), 2) # center circle
     return center_x, center_y
 
 
